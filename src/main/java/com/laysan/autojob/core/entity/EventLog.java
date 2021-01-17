@@ -13,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Data
 @Entity
@@ -29,7 +30,7 @@ public class EventLog {
     private String type;
 
     public void setDetail(String detail) {
-        if (detail.length() > 200) {
+        if (!Objects.isNull(detail) && detail.length() > 200) {
             this.detail = detail.substring(0, 200);
         } else {
             this.detail = detail;

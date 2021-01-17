@@ -1,6 +1,6 @@
 APPLICATION="autojob"
 
-APPLICATION_JAR="${APPLICATION}-0.0.1-SNAPSHOT.jar"
+APPLICATION_JAR="${APPLICATION}.jar"
 
 PID=$(ps -ef | grep "${APPLICATION_JAR}" | grep -v grep | awk '{ print $2 }')
 if [[ -z "$PID" ]]

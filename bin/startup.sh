@@ -1,6 +1,6 @@
 APPLICATION="autojob"
 
-APPLICATION_JAR="${APPLICATION}-0.0.1-SNAPSHOT.jar"
+APPLICATION_JAR="${APPLICATION}.jar"
 
 cd `dirname $0`
 cd ./
