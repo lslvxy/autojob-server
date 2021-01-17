@@ -1,6 +1,7 @@
 
 package com.laysan.autojob.modules.cloud189;
 
+import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.laysan.autojob.core.constants.Constants;
@@ -11,7 +12,9 @@ import com.laysan.autojob.core.service.AutoRun;
 import com.laysan.autojob.core.service.AutoRunService;
 import com.laysan.autojob.core.service.MessageService;
 import com.laysan.autojob.core.utils.AESUtil;
+import com.laysan.autojob.core.utils.AliyunOcr;
 import com.laysan.autojob.core.utils.LogUtils;
+import com.laysan.autojob.core.utils.baiduocr.BaiduOcr;
 import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Cookie;
@@ -33,6 +36,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.crypto.Cipher;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
@@ -50,19 +55,22 @@ import java.util.regex.Pattern;
 @Service
 @Slf4j
 public class Cloud189RunService implements AutoRun {
-    private static String  loginPageUrl     = "https://cloud.189.cn/udb/udb_login.jsp?pageId=1&redirectURL=/main.action";
-    private static Pattern returnUrlPattern = Pattern.compile("returnUrl = '(.*)'");
-    private static Pattern paramIdPattern   = Pattern.compile("paramId = \"(.*)\"");
-    private static Pattern ltPattern        = Pattern.compile("lt = \"(.*)\"");
-    private static Pattern reqIdPattern     = Pattern.compile("reqId = \"(.*)\"");
-    private static Pattern guidPattern      = Pattern.compile("guid = \"(.*)\"");
-    private        String  returnUrl        = "";
-    private        String  paramId          = "";
-    private        String  lt               = "";
-    private        String  reqId            = "";
-    private        String  guid             = "";
-    private        String  captchaTokenStr  = "";
-    private static String  loginUrl         = "https://open.e.189.cn/api/logbox/oauth2/loginSubmit.do";
+    private static String  loginPageUrl         = "https://cloud.189.cn/udb/udb_login.jsp?pageId=1&redirectURL=/main.action";
+    private static Pattern returnUrlPattern     = Pattern.compile("returnUrl = '(.*)'");
+    private static Pattern paramIdPattern       = Pattern.compile("paramId = \"(.*)\"");
+    private static Pattern ltPattern            = Pattern.compile("lt = \"(.*)\"");
+    private static Pattern reqIdPattern         = Pattern.compile("reqId = \"(.*)\"");
+    private static Pattern guidPattern          = Pattern.compile("guid = \"(.*)\"");
+    private        String  returnUrl            = "";
+    private        String  paramId              = "";
+    private        String  lt                   = "";
+    private        String  reqId                = "";
+    private        String  guid                 = "";
+    private        String  captchaTokenStr      = "";
+    private        String  unifyAccountLoginUrl = "";
+    private        String  phone                = "abc";
+
+    private static String loginUrl = "https://open.e.189.cn/api/logbox/oauth2/loginSubmit.do";
 
     String url  = "https://m.cloud.189.cn/v2/drawPrizeMarketDetails.action?taskId=TASK_SIGNIN&activityId=ACT_SIGNIN";
     String url2 = "https://m.cloud.189.cn/v2/drawPrizeMarketDetails.action?taskId=TASK_SIGNIN_PHOTOS&activityId=ACT_SIGNIN";
@@ -80,6 +88,9 @@ public class Cloud189RunService implements AutoRun {
 
     @Override
     public void run(Account account) {
+        if (Objects.isNull(account)) {
+            throw new RuntimeException("用户未配置");
+        }
         if (!Objects.equals(account.getType(), Constants.LOG_TYPE_CLOUD189)) {
             log.error("账户type不正确");
             return;
@@ -104,9 +115,8 @@ public class Cloud189RunService implements AutoRun {
                 }
             }).build();
 
-            if (Objects.isNull(account)) {
-                throw new RuntimeException("用户未配置");
-            }
+            phone = account.getAccount();
+
             String loginResult = login(account.getAccount(), AESUtil.decrypt(account.getPassword()));
             LogUtils.info(log, account.getAccount(), Constants.LOG_MODULES_CLOUD189, Constants.LOG_OPERATE_LOGIN, loginResult);
 
@@ -137,7 +147,8 @@ public class Cloud189RunService implements AutoRun {
     }
 
     private String needCaptcha(String username) {
-        AtomicReference<Response> response = new AtomicReference<>();
+        AtomicReference<Response> needCaptchaResponse = new AtomicReference<>();
+        AtomicReference<Response> captchaImgResponse = new AtomicReference<>();
         return Try.of(() -> {
             String needCaptchaUrl = "https://open.e.189.cn/api/logbox/oauth2/needcaptcha.do";
 
@@ -152,8 +163,8 @@ public class Cloud189RunService implements AutoRun {
                     .header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/76.0")
                     .header("Referer", "https://open.e.189.cn/")
                     .build();
-            response.set(client.newCall(request).execute());
-            String responseText = Objects.requireNonNull(response.get().body()).string();
+            needCaptchaResponse.set(client.newCall(request).execute());
+            String responseText = Objects.requireNonNull(needCaptchaResponse.get().body()).string();
             log.info("needCaptcha:{}", responseText);
             if (responseText.equals("1")) {
                 String cpUrl
@@ -162,28 +173,39 @@ public class Cloud189RunService implements AutoRun {
 
                 Request captchaRequest = new Request.Builder()
                         .url(cpUrl)
+                        .header("Referer", unifyAccountLoginUrl)
+                        .header("DNT", "1")
                         .build();
-                Response captchaResponse = client.newCall(request).execute();
-                byte[] bytes = captchaResponse.body().bytes();
-                FileOutputStream downloadFile = new FileOutputStream("/Users/lise/abc.png");
-                downloadFile.write(bytes);
-                downloadFile.flush();
-                downloadFile.close();
-
+                captchaImgResponse.set(client.newCall(captchaRequest).execute());
+                InputStream bytes = captchaImgResponse.get().body().byteStream();
+                String file = "/opt/autojob/captcha/" + phone + "_" + System.currentTimeMillis() + ".png";
+                writeToLocal(file, bytes);
+                return RandomUtil.randomBoolean() ? AliyunOcr.ocr(file) : BaiduOcr.ocr(file);
             }
             return responseText;
-        }).andFinally(() -> {
-            if (!Objects.isNull(response.get())) {
-                response.get().close();
-            }
-        }).getOrElse("1");
+        }).onFailure(Throwable::printStackTrace).
+                andFinally(() -> {
+                    if (!Objects.isNull(needCaptchaResponse.get())) {
+                        needCaptchaResponse.get().close();
+                    }
+                    if (!Objects.isNull(captchaImgResponse.get())) {
+                        captchaImgResponse.get().close();
+                    }
+                }).get();
     }
 
     private String login(String username, String password) throws Exception {
         AtomicReference<Response> response = new AtomicReference<>();
 
         return Try.of(() -> {
-            Document doc = Jsoup.connect(loginPageUrl).get();
+            Request firstRequest = new Request.Builder()
+                    .url(loginPageUrl)
+                    .build();
+            Response firstResponse = client.newCall(firstRequest).execute();
+            unifyAccountLoginUrl = firstResponse.request().url().toString();
+            firstResponse.close();
+
+            Document doc = Jsoup.connect(unifyAccountLoginUrl).get();
             Element captchaToken = doc.body().selectFirst("input[name='captchaToken']");
             Element rsaKey = doc.getElementById("j_rsaKey");
             captchaTokenStr = captchaToken.val();
@@ -389,5 +411,18 @@ public class Cloud189RunService implements AutoRun {
             }
         }).get();
 
+    }
+
+    private static void writeToLocal(String destination, InputStream input)
+            throws IOException {
+        int index;
+        byte[] bytes = new byte[1024];
+        FileOutputStream downloadFile = new FileOutputStream(destination);
+        while ((index = input.read(bytes)) != -1) {
+            downloadFile.write(bytes, 0, index);
+            downloadFile.flush();
+        }
+        downloadFile.close();
+        input.close();
     }
 }

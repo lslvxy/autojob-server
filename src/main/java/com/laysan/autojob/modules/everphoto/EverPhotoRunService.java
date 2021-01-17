@@ -31,7 +31,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 @Service
@@ -90,15 +89,14 @@ public class EverPhotoRunService implements AutoRun {
             Result result = checkinData.toJavaObject(Result.class);
             eventLog.setUserId(account.getUserId());
             List<String> detail = new LinkedList<>();
-            detail.add("签到结果:" + (result.getCheckin_result().equals("true") ? "成功" : "失败(今日已签到)"));
-            detail.add("累计签到:" + (result.getContinuity()) + "天");
-            detail.add("总容量:" + (result.getTotal_reward() / 1024 / 1024) + "MB");
-            detail.add("明日可得:" + (result.getTomorrow_reward() / 1024 / 1024) + "MB");
-            String detail1 = detail.stream().collect(Collectors.joining("；"));
+            detail.add("签到" + ("true".equals(result.getCheckin_result()) ? "成功" : "成功"));
+            detail.add("累计" + (result.getContinuity()) + "天");
+            detail.add("明日" + (result.getTomorrow_reward() / 1024 / 1024) + "M");
+            String detail1 = String.join("；", detail);
             eventLog.setDetail(detail1);
             eventLog.setType(Constants.LOG_TYPE_EVERPHOTO);
             eventLogRepository.save(eventLog);
-            LogUtils.info(log, Constants.LOG_MODULES_EVERPHOTO, Constants.LOG_OPERATE_CHECKIN, "{},{}", account.getAccount(), detail1);
+            LogUtils.info(log, account.getAccount(), Constants.LOG_MODULES_EVERPHOTO, Constants.LOG_OPERATE_CHECKIN, detail1);
 
             messageService.sendMessage(account.getUserId(), "时光相册签到", detail1);
             return null;
