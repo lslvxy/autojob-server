@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("server")
@@ -20,7 +21,13 @@ public class ServerController {
     @PostMapping("create")
     @ResponseBody
     public String create(@RequestBody Server dto) {
-        serverRepository.save(dto);
+        Server byUserId = serverRepository.findByUserId(dto.getUserId());
+        if (!Objects.isNull(byUserId)) {
+            byUserId.setSckey(dto.getSckey());
+            serverRepository.save(byUserId);
+        } else {
+            serverRepository.save(dto);
+        }
         return "Success";
     }
 
