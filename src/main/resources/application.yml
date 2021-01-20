@@ -17,7 +17,7 @@ spring:
       auto-commit: true
       idle-timeout: 30000
       pool-name: HikariCP
-      max-lifetime: 28700000
+      max-lifetime: 60000
       connection-timeout: 30000
       connection-test-query: select 1
     initialization-mode: always
