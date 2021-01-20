@@ -3,17 +3,26 @@ package com.laysan.autojob.core.service;
 
 import com.alibaba.fastjson.JSON;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.laysan.autojob.core.entity.Server;
+import com.laysan.autojob.core.repository.ServerRepository;
 import com.laysan.autojob.core.service.dto.DataDetail;
 import com.laysan.autojob.core.service.dto.Message;
 import com.laysan.autojob.core.service.dto.ValueDetail;
 import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
+import okhttp3.FormBody;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -24,6 +33,10 @@ import java.util.concurrent.atomic.AtomicReference;
 @Service
 @Slf4j
 public class MessageService {
+
+    @Resource
+    ServerRepository serverRepository;
+
     public String getToken() {
         String secret = System.getenv("wx127525214d4abbe0_secret");
 
@@ -77,5 +90,22 @@ public class MessageService {
             log.info("发送服务消息:{}", response.get().body().string());
             return response;
         }).andFinally(() -> response.get().close());
+
+        Server server = serverRepository.findByUserId(userId);
+        if (!Objects.isNull(server) && !Objects.isNull(server.getSckey())) {
+            RequestBody scbody = new FormBody.Builder()
+                    .add("text", type)
+                    .add("desp", detail).build();
+            Request sckeyRequest = new Request.Builder()
+                    .url("https://sc.ftqq.com/" + server.getSckey() + ".send")
+                    .post(scbody)
+                    .build();
+            Try.of(() -> {
+                Response execute = client.newCall(sckeyRequest).execute();
+                execute.close();
+                return null;
+            });
+        }
+
     }
 }
