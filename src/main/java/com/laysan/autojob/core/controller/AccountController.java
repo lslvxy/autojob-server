@@ -53,15 +53,10 @@ public class AccountController extends BaseController {
             String type = accountDTO.getType();
             for (Account account : accountDTO.getAccountList()) {
                 Account accountQuery;
-                if (Objects.isNull(account.getId())) {
-                    accountQuery = accountRepository.findByUserIdAndTypeAndAccount(userId, type,
-                            account.getAccount());
-                    if (!Objects.isNull(accountQuery)) {
-                        account.setId(accountQuery.getId());
-                        account.setPassword(accountQuery.getPassword());
-                    }
-                } else {
-                    accountQuery = accountRepository.findById(account.getId()).get();
+                accountQuery = accountRepository.findByUserIdAndTypeAndAccount(userId, type,
+                        account.getAccount());
+                if (!Objects.isNull(accountQuery)) {
+                    account.setId(accountQuery.getId());
                 }
 
                 if (Objects.equals(account.getPassword(), "****")) {

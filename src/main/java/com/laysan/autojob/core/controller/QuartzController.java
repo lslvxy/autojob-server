@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/quartz/")
+@RequestMapping("/quartz")
 public class QuartzController {
     //注入任务调度
     @Autowired
@@ -23,26 +23,11 @@ public class QuartzController {
     @Autowired
     private QuartzBeanRepository quartzBeanRepository;
 
-    @RequestMapping("/createJob")
-    @ResponseBody
-    public String createJob(QuartzBean quartzBean) {
-        try {
-            //进行测试所以写死
-            quartzBean.setJobClass("com.laisen.autojob.quartz.EverPhotoJob");
-            quartzBean.setJobName("test1");
-            quartzBean.setCronExpression("*/10 * * * * ?");
-            QuartzUtils.createScheduleJob(scheduler, quartzBean);
-        } catch (Exception e) {
-            return "创建失败";
-        }
-        return "创建成功";
-    }
-
     @RequestMapping("/pauseJob")
     @ResponseBody
-    public String pauseJob() {
+    public String pauseJob(String jobName) {
         try {
-            QuartzUtils.pauseScheduleJob(scheduler, "test1");
+            QuartzUtils.pauseScheduleJob(scheduler, jobName);
         } catch (Exception e) {
             return "暂停失败";
         }
@@ -67,9 +52,9 @@ public class QuartzController {
 
     @RequestMapping("/runOnce")
     @ResponseBody
-    public String runOnce() {
+    public String runOnce(String jobName) {
         try {
-            QuartzUtils.runOnce(scheduler, "test1");
+            QuartzUtils.runOnce(scheduler, jobName);
         } catch (Exception e) {
             return "运行一次失败";
         }
@@ -78,10 +63,10 @@ public class QuartzController {
 
     @RequestMapping("/resume")
     @ResponseBody
-    public String resume() {
+    public String resume(String jobName ) {
         try {
 
-            QuartzUtils.resumeScheduleJob(scheduler, "test1");
+            QuartzUtils.resumeScheduleJob(scheduler, jobName);
         } catch (Exception e) {
             return "启动失败";
         }

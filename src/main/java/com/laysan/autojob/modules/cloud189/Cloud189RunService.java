@@ -363,11 +363,8 @@ public class Cloud189RunService implements AutoRun {
             LogUtils.info(log, Constants.MODULE_CLOUD189, phone, "signIn  Result:" + signInResult);
 
             JSONObject jsonObject = JSON.parseObject(signInResult);
-            if (jsonObject.getString("isSign").equals("false")) {
-                result = "签到获得" + jsonObject.getString("netdiskBonus") + "MB";
-                LogUtils.info(log, Constants.MODULE_CLOUD189, phone, result);
-            } else {
-                result = "已签到，获得" + jsonObject.getString("netdiskBonus") + "MB";
+            if (jsonObject.containsKey("netdiskBonus")) {
+                result = "签到" + jsonObject.getString("netdiskBonus") + "M";
                 LogUtils.info(log, Constants.MODULE_CLOUD189, phone, result);
             }
             return result;
@@ -407,7 +404,7 @@ public class Cloud189RunService implements AutoRun {
                     throw new RuntimeException("抽奖出错");
                 }
             } else if (jsonObject.containsKey("prizeName")) {
-                result = "获得" + jsonObject.getString("prizeName").replace("天翼云盘", "");
+                result = "抽奖" + jsonObject.getString("prizeName").replace("天翼云盘", "").replace("空间", "");
                 LogUtils.info(log, Constants.MODULE_CLOUD189, phone, result);
             }
             return result;
