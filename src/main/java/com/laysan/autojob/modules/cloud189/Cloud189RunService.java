@@ -83,7 +83,7 @@ public class Cloud189RunService implements AutoRun {
     @Override
     @PostConstruct
     public void registry() {
-        AutoRunService.handlers.put(Constants.LOG_TYPE_CLOUD189, this);
+        AutoRunService.handlers.put(Constants.MODULE_CLOUD189, this);
     }
 
     @Override
@@ -91,14 +91,14 @@ public class Cloud189RunService implements AutoRun {
         if (Objects.isNull(account)) {
             throw new RuntimeException("用户未配置");
         }
-        if (!Objects.equals(account.getType(), Constants.LOG_TYPE_CLOUD189)) {
+        if (!Objects.equals(account.getType(), Constants.MODULE_CLOUD189)) {
             log.error("账户type不正确");
             return;
         }
         EventLog eventLog = new EventLog();
         eventLog.setUserId(account.getUserId());
         eventLog.setAccountId(account.getId());
-        eventLog.setType(Constants.LOG_TYPE_CLOUD189);
+        eventLog.setType(Constants.MODULE_CLOUD189);
 
         Try.of(() -> {
             String detail;
@@ -118,17 +118,17 @@ public class Cloud189RunService implements AutoRun {
             phone = account.getAccount();
 
             String loginResult = login(account.getAccount(), AESUtil.decrypt(account.getPassword()));
-            LogUtils.info(log, account.getAccount(), Constants.LOG_MODULES_CLOUD189, Constants.LOG_OPERATE_LOGIN, loginResult);
+            LogUtils.info(log, Constants.MODULE_CLOUD189, phone, loginResult);
 
             if (loginResult.equals("登录成功")) {
                 String checkInResult = checkIn();
-                LogUtils.info(log, account.getAccount(), Constants.LOG_MODULES_CLOUD189, Constants.LOG_OPERATE_CHECKIN, checkInResult);
+                LogUtils.info(log, Constants.MODULE_CLOUD189, phone, checkInResult);
 
                 String lottery = lottery(url);
-                LogUtils.info(log, account.getAccount(), Constants.LOG_MODULES_CLOUD189, Constants.LOG_OPERATE_LOTTERY, lottery);
+                LogUtils.info(log, Constants.MODULE_CLOUD189, phone, lottery);
 
                 String lottery1 = lottery(url2);
-                LogUtils.info(log, account.getAccount(), Constants.LOG_MODULES_CLOUD189, Constants.LOG_OPERATE_LOTTERY, lottery1);
+                LogUtils.info(log, Constants.MODULE_CLOUD189, phone, lottery1);
                 detail = checkInResult + ";" + lottery + ";" + lottery1;
             } else {
                 detail = loginResult;
@@ -136,12 +136,13 @@ public class Cloud189RunService implements AutoRun {
 
             eventLog.setDetail(detail);
             eventLogRepository.save(eventLog);
-            LogUtils.info(log, account.getAccount(), Constants.LOG_MODULES_CLOUD189, Constants.LOG_OPERATE_LOTTERY, detail);
+            LogUtils.info(log, Constants.MODULE_CLOUD189, phone, detail);
 
             messageService.sendMessage(account.getUserId(), "天翼网盘签到", detail);
             return null;
         }).onFailure(ex -> {
-            eventLog.setDetail(ex.getMessage());
+            ex.printStackTrace();
+            eventLog.setDetail(Objects.isNull(ex.getMessage()) ? "签到失败" : ex.getMessage());
             eventLogRepository.save(eventLog);
         });
     }
@@ -165,7 +166,7 @@ public class Cloud189RunService implements AutoRun {
                     .build();
             needCaptchaResponse.set(client.newCall(request).execute());
             String responseText = Objects.requireNonNull(needCaptchaResponse.get().body()).string();
-            log.info("needCaptcha:{}", responseText);
+            LogUtils.info(log, Constants.MODULE_CLOUD189, phone, "needCaptcha:" + responseText);
             if (responseText.equals("1")) {
                 String cpUrl
                         = "https://open.e.189.cn/api/logbox/oauth2/picCaptcha"
@@ -179,6 +180,7 @@ public class Cloud189RunService implements AutoRun {
                 captchaImgResponse.set(client.newCall(captchaRequest).execute());
                 InputStream bytes = captchaImgResponse.get().body().byteStream();
                 String file = "/opt/autojob/captcha/" + phone + "_" + System.currentTimeMillis() + ".png";
+                LogUtils.info(log, Constants.MODULE_CLOUD189, phone, "验证码文件:" + file);
                 writeToLocal(file, bytes);
                 return RandomUtil.randomBoolean() ? AliyunOcr.ocr(file) : BaiduOcr.ocr(file);
             }
@@ -269,7 +271,8 @@ public class Cloud189RunService implements AutoRun {
             response.set(client.newCall(request).execute());
 
             String s = Objects.requireNonNull(response.get().body()).string();
-            log.info("login Result:{}", s);
+            LogUtils.info(log, Constants.MODULE_CLOUD189, phone, "login Result:" + s);
+
             JSONObject jsonObject = JSON.parseObject(s);
             if (jsonObject.containsKey("result") && jsonObject.getInteger("result").equals(0)) {
                 String toUrl = jsonObject.getString("toUrl");
@@ -357,14 +360,15 @@ public class Cloud189RunService implements AutoRun {
                     .build();
             response.set(client.newCall(request).execute());
             String signInResult = response.get().body().string();
-            log.info("signInResult:{}", signInResult);
+            LogUtils.info(log, Constants.MODULE_CLOUD189, phone, "signIn  Result:" + signInResult);
+
             JSONObject jsonObject = JSON.parseObject(signInResult);
             if (jsonObject.getString("isSign").equals("false")) {
                 result = "签到获得" + jsonObject.getString("netdiskBonus") + "MB";
-                log.info(result);
+                LogUtils.info(log, Constants.MODULE_CLOUD189, phone, result);
             } else {
                 result = "已签到，获得" + jsonObject.getString("netdiskBonus") + "MB";
-                log.info(result);
+                LogUtils.info(log, Constants.MODULE_CLOUD189, phone, result);
             }
             return result;
         }).andFinally(() -> {
@@ -393,7 +397,8 @@ public class Cloud189RunService implements AutoRun {
 
             response.set(client.newCall(request).execute());
             String responseText = response.get().body().string();
-            log.info("lotteryResult:{}", responseText);
+            LogUtils.info(log, Constants.MODULE_CLOUD189, phone, "lotteryResult:" + responseText);
+
             JSONObject jsonObject = JSON.parseObject(responseText);
             if (jsonObject.containsKey("errorCode")) {
                 if (jsonObject.getString("errorCode").equals("User_Not_Chance")) {
@@ -401,8 +406,9 @@ public class Cloud189RunService implements AutoRun {
                 } else {
                     throw new RuntimeException("抽奖出错");
                 }
-            } else if (jsonObject.containsKey("description")) {
-                result = "获得" + jsonObject.getString("description") + "MB";
+            } else if (jsonObject.containsKey("prizeName")) {
+                result = "获得" + jsonObject.getString("prizeName").replace("天翼云盘", "");
+                LogUtils.info(log, Constants.MODULE_CLOUD189, phone, result);
             }
             return result;
         }).andFinally(() -> {

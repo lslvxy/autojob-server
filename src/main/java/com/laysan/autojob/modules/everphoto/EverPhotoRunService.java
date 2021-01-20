@@ -43,18 +43,19 @@ public class EverPhotoRunService implements AutoRun {
 
     static String url      = "https://api.everphoto.cn/users/self/checkin/v2";
     static String urllogin = "https://web.everphoto.cn/api/auth";
+    static String phone    = "";
 
     @Override
     @PostConstruct
     public void registry() {
-        AutoRunService.handlers.put(Constants.LOG_TYPE_EVERPHOTO, this);
+        AutoRunService.handlers.put(Constants.MODULE_EVERPHOTO, this);
     }
 
     @Override
     public void run(Account account) {
         EventLog eventLog = new EventLog();
         Try.of(() -> {
-            if (Objects.isNull(account) || !Objects.equals(account.getType(), Constants.LOG_TYPE_EVERPHOTO)) {
+            if (Objects.isNull(account) || !Objects.equals(account.getType(), Constants.MODULE_EVERPHOTO)) {
                 log.error("账户type不正确");
                 throw new RuntimeException("账户type不正确");
             }
@@ -64,19 +65,19 @@ public class EverPhotoRunService implements AutoRun {
                 String originalPassword = AESUtil.decrypt(password);
                 password = DigestUtils.md5DigestAsHex(("tc.everphoto." + originalPassword).getBytes());
             }
-            String login = login(account.getAccount(), password);
+            phone = account.getAccount();
+            String login = login(phone, password);
             final JSONObject loginResult = JSON.parseObject(login);
             if (Objects.isNull(loginResult)) {
                 throw new RuntimeException("登录失败");
             }
             if (!loginResult.getInteger("code").equals(0) || !loginResult.containsKey("data")) {
-                throw new RuntimeException("登录失败," + (loginResult.containsKey("message") ? loginResult.getString("message") : ""));
+                throw new RuntimeException((loginResult.containsKey("message") ? loginResult.getString("message") : ""));
             }
             final JSONObject loginData = loginResult.getJSONObject("data");
             if (loginData.containsKey("token")) {
                 token = loginData.getString("token");
-                //            log.info("登录成功,token={}", token);
-                LogUtils.info(log, Constants.LOG_MODULES_EVERPHOTO, Constants.LOG_OPERATE_LOGIN, "{}登录成功", account.getAccount());
+                LogUtils.info(log, Constants.MODULE_EVERPHOTO, phone, "登录成功");
             }
             if (StringUtils.isEmpty(token)) {
                 throw new RuntimeException("获取token失败");
@@ -94,9 +95,9 @@ public class EverPhotoRunService implements AutoRun {
             detail.add("明日" + (result.getTomorrow_reward() / 1024 / 1024) + "M");
             String detail1 = String.join("；", detail);
             eventLog.setDetail(detail1);
-            eventLog.setType(Constants.LOG_TYPE_EVERPHOTO);
+            eventLog.setType(Constants.MODULE_EVERPHOTO);
             eventLogRepository.save(eventLog);
-            LogUtils.info(log, account.getAccount(), Constants.LOG_MODULES_EVERPHOTO, Constants.LOG_OPERATE_CHECKIN, detail1);
+            LogUtils.info(log, Constants.MODULE_EVERPHOTO, phone, detail1);
 
             messageService.sendMessage(account.getUserId(), "时光相册签到", detail1);
             return null;

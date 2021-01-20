@@ -14,6 +14,7 @@ import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.quartz.impl.matchers.GroupMatcher;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class QuartzUtils {
@@ -114,6 +115,9 @@ public class QuartzUtils {
             CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(quartzBean.getCronExpression());
             //重新构建任务的触发器trigger
             CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
+            if (Objects.isNull(trigger)) {
+                return;
+            }
             trigger = trigger.getTriggerBuilder().withIdentity(triggerKey).withSchedule(scheduleBuilder).build();
             //重置对应的job
             scheduler.rescheduleJob(triggerKey, trigger);

@@ -42,17 +42,17 @@ public class SystemController {
     public Object typeList() {
         List<TypeDTO> result = new ArrayList<>();
         TypeDTO everPhoto = new TypeDTO();
-        everPhoto.setType(Constants.LOG_TYPE_EVERPHOTO);
+        everPhoto.setType(Constants.MODULE_EVERPHOTO);
         everPhoto.setName("时光相册");
         everPhoto.setIcon("https://web.everphoto.cn/images/favicon.ico");
         result.add(everPhoto);
         TypeDTO cloud189 = new TypeDTO();
-        cloud189.setType(Constants.LOG_TYPE_CLOUD189);
+        cloud189.setType(Constants.MODULE_CLOUD189);
         cloud189.setName("天翼云盘");
         cloud189.setIcon("https://cloud.189.cn/logo.ico");
         result.add(cloud189);
         TypeDTO yun139 = new TypeDTO();
-        yun139.setType(Constants.LOG_TYPE_YUN139);
+        yun139.setType(Constants.MODULE_YUN139);
         yun139.setName("和彩云");
         yun139.setIcon("https://yun.139.com/w/static/img/LOGO.png");
         yun139.setStatus("开发中");

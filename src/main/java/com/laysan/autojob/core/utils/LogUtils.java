@@ -8,15 +8,8 @@ import org.slf4j.Logger;
  * @version LogUtil.java, v 0.1 2020年11月30日 18:31 lise
  */
 public class LogUtils {
-    public static void info(Logger log, String account, String module, String operate, String detail) {
-        log.info("[{}]-[{}]-[{}]-{}", account, module, operate, detail);
+    public static void info(Logger log, String module, String account, String detail) {
+        log.info("[{}]-[{}]-{}", account, module, detail);
     }
 
-    public static void error(Logger log, String account, String module, String operate, String detail) {
-        log.error("[{}]-[{}]-[{}]-{}", account, module, operate, detail);
-    }
-
-    public static void debug(Logger log, String account, String module, String operate, String detail) {
-        log.info("[{}]-[{}]-[{}]-{}", account, module, operate, detail);
-    }
 }

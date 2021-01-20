@@ -6,9 +6,9 @@ package com.laysan.autojob.core.constants;
  * @version Constants.java, v 0.1 2020年11月27日 22:59 lise
  */
 public interface Constants {
-    String LOG_TYPE_EVERPHOTO = "everphoto";
-    String LOG_TYPE_CLOUD189 = "cloud189";
-    String LOG_TYPE_YUN139 = "yun139";
+    String MODULE_EVERPHOTO = "everphoto";
+    String MODULE_CLOUD189 = "cloud189";
+    String MODULE_YUN139   = "yun139";
 
     String LOG_MODULES_CORE = "系统";
     String LOG_MODULES_EVERPHOTO = "时光相册";
