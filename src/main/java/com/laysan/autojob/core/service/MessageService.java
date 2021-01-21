@@ -8,6 +8,7 @@ import com.laysan.autojob.core.repository.ServerRepository;
 import com.laysan.autojob.core.service.dto.DataDetail;
 import com.laysan.autojob.core.service.dto.Message;
 import com.laysan.autojob.core.service.dto.ValueDetail;
+import com.laysan.autojob.core.utils.LogUtils;
 import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.FormBody;
@@ -52,10 +53,9 @@ public class MessageService {
             String responseText = response.get().body().string();
             ObjectMapper mapper = new ObjectMapper();
             Map map = mapper.readValue(responseText, Map.class);
-            String openid = map.get("access_token").toString();
 
-            return openid;
-        }).andFinally(() -> response.get().close()).getOrElse("");
+            return map.get("access_token").toString();
+        }).onFailure(Throwable::printStackTrace).andFinally(() -> response.get().close()).getOrElse("");
     }
 
     public void sendMessage(String userId, String type, String detail) {
@@ -74,6 +74,7 @@ public class MessageService {
 
         message.setTouser(userId);
         String token = getToken();
+        LogUtils.info(log, "token", userId, token);
         message.setAccess_token(token);
         //String url="http://localhost:8080/logs/send";
         String url = "https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token=" + token;
@@ -87,7 +88,7 @@ public class MessageService {
         AtomicReference<Response> response = new AtomicReference<>();
         Try.of(() -> {
             response.set(client.newCall(request).execute());
-            log.info("发送服务消息:{}", response.get().body().string());
+            log.info("发送服务消息:{},{}", userId, response.get().body().string());
             return response;
         }).andFinally(() -> response.get().close());
 
