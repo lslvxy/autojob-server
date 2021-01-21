@@ -10,6 +10,9 @@ import com.laysan.autojob.core.service.dto.Message;
 import com.laysan.autojob.core.service.dto.ValueDetail;
 import com.laysan.autojob.core.utils.LogUtils;
 import io.vavr.control.Try;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.FormBody;
 import okhttp3.MediaType;
@@ -22,7 +25,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -34,11 +36,18 @@ import java.util.concurrent.atomic.AtomicReference;
 @Service
 @Slf4j
 public class MessageService {
-
+    private Token tokenStore;
     @Resource
     ServerRepository serverRepository;
 
     public String getToken() {
+        if (!Objects.isNull(tokenStore)) {
+            log.info("缓存的Token:{} ", tokenStore.toString());
+            if (Objects.isNull(tokenStore.getErrcode()) && !Objects.isNull(tokenStore.getTimestamp())
+                    && tokenStore.getTimestamp() - System.currentTimeMillis() > 10 * 60 * 1000) {
+                return tokenStore.getAccess_token();
+            }
+        }
         String secret = System.getenv("wx127525214d4abbe0_secret");
 
         String url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=wx127525214d4abbe0&secret="
@@ -51,10 +60,14 @@ public class MessageService {
         return Try.of(() -> {
             response.set(client.newCall(request).execute());
             String responseText = response.get().body().string();
+            log.info("token response:{}", responseText);
             ObjectMapper mapper = new ObjectMapper();
-            Map map = mapper.readValue(responseText, Map.class);
+            Token token = mapper.readValue(responseText, Token.class);
+            token.setTimestamp(System.currentTimeMillis() + token.expires_in * 1000);
+            log.info("获取新的Token:{} ", token.toString());
 
-            return map.get("access_token").toString();
+            this.tokenStore = token;
+            return token.getAccess_token();
         }).onFailure(Throwable::printStackTrace).andFinally(() -> response.get().close()).getOrElse("");
     }
 
@@ -108,5 +121,16 @@ public class MessageService {
             });
         }
 
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    static class Token {
+        private String  access_token;
+        private Integer expires_in;
+        private Integer errcode;
+        private String  errmsg;
+        private Long    timestamp;
     }
 }
