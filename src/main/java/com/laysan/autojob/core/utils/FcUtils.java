@@ -54,7 +54,8 @@ public class FcUtils {
 
             // 用于初始化的情况。
             String path = ResourceUtils.getURL("classpath:").getPath();
-            Code code = new Code().setDir(path + account.getType());
+//            Code code = new Code().setDir(path + account.getType());
+            Code code = new Code().setDir("/opt/autojob/scripts/" + account.getType());
             cfReq.setCode(code);
             cfReq.setTimeout(10);
 

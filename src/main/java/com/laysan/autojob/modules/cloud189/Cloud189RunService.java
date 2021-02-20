@@ -94,7 +94,7 @@ public class Cloud189RunService implements AutoRun {
             ThreadUtil.sleep(200);
             FcUtils.deleteFunction(account);
         } catch (Exception e) {
-            detail = e.getMessage();
+            detail = "签到失败,请确认验证码";
         }
 
         eventLog.setDetail(detail);
