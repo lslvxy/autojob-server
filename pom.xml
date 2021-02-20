@@ -97,7 +97,11 @@
             <artifactId>aliyun-java-sdk-core</artifactId>
             <version>4.5.14</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>aliyun-java-sdk-fc</artifactId>
+            <version>1.8.12</version>
+        </dependency>
         <dependency>
             <groupId>com.aliyun</groupId>
             <artifactId>ocr20191230</artifactId>

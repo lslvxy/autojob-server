@@ -1,9 +1,11 @@
 package com.laysan.autojob.core.controller;
 
+import com.laysan.autojob.core.constants.AccountType;
 import com.laysan.autojob.core.dto.AccountDTO;
 import com.laysan.autojob.core.entity.Account;
 import com.laysan.autojob.core.repository.AccountRepository;
 import com.laysan.autojob.core.utils.AESUtil;
+import com.laysan.autojob.core.utils.FcUtils;
 import com.laysan.autojob.core.utils.JobUtils;
 import com.laysan.autojob.quartz.QuartzJob;
 import com.laysan.autojob.quartz.entity.QuartzBean;
@@ -12,19 +14,10 @@ import com.laysan.autojob.quartz.util.QuartzUtils;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -32,7 +25,7 @@ import java.util.stream.Collectors;
 public class AccountController extends BaseController {
 
     @Autowired
-    private Scheduler            scheduler;
+    private Scheduler scheduler;
     @Autowired
     private QuartzBeanRepository quartzBeanRepository;
 
@@ -91,6 +84,7 @@ public class AccountController extends BaseController {
                 }
 
                 QuartzUtils.runOnce(scheduler, quartzBean.getJobName());
+
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -2,7 +2,7 @@ package com.laysan.autojob.modules.everphoto;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.laysan.autojob.core.constants.Constants;
+import com.laysan.autojob.core.constants.AccountType;
 import com.laysan.autojob.core.entity.Account;
 import com.laysan.autojob.core.entity.EventLog;
 import com.laysan.autojob.core.repository.EventLogRepository;
@@ -48,14 +48,14 @@ public class EverPhotoRunService implements AutoRun {
     @Override
     @PostConstruct
     public void registry() {
-        AutoRunService.handlers.put(Constants.MODULE_EVERPHOTO, this);
+        AutoRunService.handlers.put(AccountType.MODULE_EVERPHOTO.getCode(), this);
     }
 
     @Override
     public void run(Account account) {
         EventLog eventLog = new EventLog();
         Try.of(() -> {
-            if (Objects.isNull(account) || !Objects.equals(account.getType(), Constants.MODULE_EVERPHOTO)) {
+            if (Objects.isNull(account) || !Objects.equals(account.getType(), AccountType.MODULE_EVERPHOTO.getCode())) {
                 log.error("账户type不正确");
                 throw new RuntimeException("账户type不正确");
             }
@@ -77,7 +77,7 @@ public class EverPhotoRunService implements AutoRun {
             final JSONObject loginData = loginResult.getJSONObject("data");
             if (loginData.containsKey("token")) {
                 token = loginData.getString("token");
-                LogUtils.info(log, Constants.MODULE_EVERPHOTO, phone, "登录成功");
+                LogUtils.info(log, AccountType.MODULE_EVERPHOTO.getCode(), phone, "登录成功");
             }
             if (StringUtils.isEmpty(token)) {
                 throw new RuntimeException("获取token失败");
@@ -95,9 +95,9 @@ public class EverPhotoRunService implements AutoRun {
             detail.add("明日" + (result.getTomorrow_reward() / 1024 / 1024) + "M");
             String detail1 = String.join("；", detail);
             eventLog.setDetail(detail1);
-            eventLog.setType(Constants.MODULE_EVERPHOTO);
+            eventLog.setType(AccountType.MODULE_EVERPHOTO.getCode());
             eventLogRepository.save(eventLog);
-            LogUtils.info(log, Constants.MODULE_EVERPHOTO, phone, detail1);
+            LogUtils.info(log, AccountType.MODULE_EVERPHOTO.getCode(), phone, detail1);
 
             messageService.sendMessage(account.getUserId(), "时光相册签到", detail1);
             return null;

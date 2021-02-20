@@ -2,7 +2,7 @@ package com.laysan.autojob.modules.youdao;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.laysan.autojob.core.constants.Constants;
+import com.laysan.autojob.core.constants.AccountType;
 import com.laysan.autojob.core.entity.Account;
 import com.laysan.autojob.core.entity.EventLog;
 import com.laysan.autojob.core.repository.EventLogRepository;
@@ -10,7 +10,6 @@ import com.laysan.autojob.core.service.AutoRun;
 import com.laysan.autojob.core.service.AutoRunService;
 import com.laysan.autojob.core.service.MessageService;
 import com.laysan.autojob.core.utils.AESUtil;
-import com.laysan.autojob.core.utils.LogUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +35,7 @@ public class YoudaoRunService implements AutoRun {
     @Override
     @PostConstruct
     public void registry() {
-        AutoRunService.handlers.put(Constants.MODULE_YOUDAO, this);
+        AutoRunService.handlers.put(AccountType.MODULE_YOUDAO.getCode(), this);
     }
 
     @Override
@@ -94,7 +92,7 @@ public class YoudaoRunService implements AutoRun {
             if (code != 200) {
                 eventLog.setDetail("签到失败");
             }
-            eventLog.setType(Constants.MODULE_YOUDAO);
+            eventLog.setType(AccountType.MODULE_YOUDAO.getCode());
             eventLog.setUserId(account.getUserId());
 
             String text = response.body().string();
