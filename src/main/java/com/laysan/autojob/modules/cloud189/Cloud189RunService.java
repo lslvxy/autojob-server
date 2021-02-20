@@ -167,23 +167,23 @@ public class Cloud189RunService implements AutoRun {
             needCaptchaResponse.set(client.newCall(request).execute());
             String responseText = Objects.requireNonNull(needCaptchaResponse.get().body()).string();
             LogUtils.info(log, Constants.MODULE_CLOUD189, phone, "needCaptcha:" + responseText);
-            if (responseText.equals("1")) {
-                String cpUrl
-                        = "https://open.e.189.cn/api/logbox/oauth2/picCaptcha"
-                        + ".do?token=" + captchaTokenStr + "&REQID=" + reqId + "&rnd=" + System.currentTimeMillis() / 1000;
-
-                Request captchaRequest = new Request.Builder()
-                        .url(cpUrl)
-                        .header("Referer", unifyAccountLoginUrl)
-                        .header("DNT", "1")
-                        .build();
-                captchaImgResponse.set(client.newCall(captchaRequest).execute());
-                InputStream bytes = captchaImgResponse.get().body().byteStream();
-                String file = "/opt/autojob/captcha/" + phone + "_" + System.currentTimeMillis() + ".png";
-                LogUtils.info(log, Constants.MODULE_CLOUD189, phone, "验证码文件:" + file);
-                writeToLocal(file, bytes);
-                return RandomUtil.randomBoolean() ? AliyunOcr.ocr(file) : BaiduOcr.ocr(file);
-            }
+//            if (responseText.equals("1")) {
+//                String cpUrl
+//                        = "https://open.e.189.cn/api/logbox/oauth2/picCaptcha"
+//                        + ".do?token=" + captchaTokenStr + "&REQID=" + reqId + "&rnd=" + System.currentTimeMillis() / 1000;
+//
+//                Request captchaRequest = new Request.Builder()
+//                        .url(cpUrl)
+//                        .header("Referer", unifyAccountLoginUrl)
+//                        .header("DNT", "1")
+//                        .build();
+//                captchaImgResponse.set(client.newCall(captchaRequest).execute());
+//                InputStream bytes = captchaImgResponse.get().body().byteStream();
+//                String file = "/opt/autojob/captcha/" + phone + "_" + System.currentTimeMillis() + ".png";
+//                LogUtils.info(log, Constants.MODULE_CLOUD189, phone, "验证码文件:" + file);
+//                writeToLocal(file, bytes);
+//                return RandomUtil.randomBoolean() ? AliyunOcr.ocr(file) : BaiduOcr.ocr(file);
+//            }
             return responseText;
         }).onFailure(Throwable::printStackTrace).
                 andFinally(() -> {

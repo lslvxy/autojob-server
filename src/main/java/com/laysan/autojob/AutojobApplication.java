@@ -26,33 +26,35 @@ public class AutojobApplication implements CommandLineRunner {
     }
 
     @Autowired
-    private Scheduler            scheduler;
+    private Scheduler scheduler;
     @Autowired
     private QuartzBeanRepository quartzBeanRepository;
     @Autowired
-    private AccountRepository    accountRepository;
+    private AccountRepository accountRepository;
 
     @Override
     public void run(String... args) {
-        List<Account> accountList = accountRepository.findAll();
-        accountList.forEach(account -> {
-            QuartzBean quartzBean = quartzBeanRepository.findByAccountId(account.getId());
-            if (Objects.isNull(quartzBean)) {
-                quartzBean = new QuartzBean();
-            }
-            quartzBean.setUserId(account.getUserId());
-            quartzBean.setAccountId(account.getId());
-            quartzBean.setType(account.getType());
-            quartzBean.setJobClass(QuartzJob.class.getName());
-            quartzBean.setJobName(JobUtils.buildJobName(account));
-            quartzBean.setCronExpression(JobUtils.buildCron(account));
-            quartzBeanRepository.save(quartzBean);
-            try {
-                QuartzUtils.createScheduleJob(scheduler, quartzBean);
-            } catch (Exception e) {
-                QuartzUtils.updateScheduleJob(scheduler, quartzBean);
-            }
-        });
-
+        try {
+            List<Account> accountList = accountRepository.findAll();
+            accountList.forEach(account -> {
+                QuartzBean quartzBean = quartzBeanRepository.findByAccountId(account.getId());
+                if (Objects.isNull(quartzBean)) {
+                    quartzBean = new QuartzBean();
+                }
+                quartzBean.setUserId(account.getUserId());
+                quartzBean.setAccountId(account.getId());
+                quartzBean.setType(account.getType());
+                quartzBean.setJobClass(QuartzJob.class.getName());
+                quartzBean.setJobName(JobUtils.buildJobName(account));
+                quartzBean.setCronExpression(JobUtils.buildCron(account));
+                quartzBeanRepository.save(quartzBean);
+                try {
+                    QuartzUtils.createScheduleJob(scheduler, quartzBean);
+                } catch (Exception e) {
+                    QuartzUtils.updateScheduleJob(scheduler, quartzBean);
+                }
+            });
+        } catch (Exception e) {
+        }
     }
 }
