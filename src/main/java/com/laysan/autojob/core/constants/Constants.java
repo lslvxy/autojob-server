@@ -9,6 +9,7 @@ public interface Constants {
     String MODULE_EVERPHOTO = "everphoto";
     String MODULE_CLOUD189 = "cloud189";
     String MODULE_YUN139   = "yun139";
+    String MODULE_YOUDAO  = "youdao";
 
     String LOG_MODULES_CORE = "系统";
     String LOG_MODULES_EVERPHOTO = "时光相册";
