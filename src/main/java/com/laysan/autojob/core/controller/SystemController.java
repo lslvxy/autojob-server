@@ -52,7 +52,7 @@ public class SystemController {
         cloud189.setIcon("https://cloud.189.cn/logo.ico");
         result.add(cloud189);
         TypeDTO yun139 = new TypeDTO();
-        yun139.setType(Constants.MODULE_YUN139);
+        yun139.setType(Constants.MODULE_YOUDAO);
         yun139.setName("有道云");
         yun139.setIcon("https://th.bing.com/th/id/R42ec07afd649805d38ffb2ee84e826c8?rik=FjxbOtyizIGk5Q&riu=http%3a%2f%2fis5.mzstatic.com%2fimage%2fthumb%2fPurple118%2fv4%2f97%2f83%2f7c%2f97837c6f-284f-7435-241c-6dafb8132157%2fsource%2f512x512bb.png&ehk=3OE2Kpd1dBGgqjk1BitkrOMni2HqdlE6kglsDGoEw78%3d&risl=&pid=ImgRaw");
 //        yun139.setStatus("开发中");
