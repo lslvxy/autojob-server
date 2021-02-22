@@ -89,6 +89,7 @@ public class EverPhotoRunService implements AutoRun {
             final JSONObject checkinData = checkinResponse.getJSONObject("data");
             Result result = checkinData.toJavaObject(Result.class);
             eventLog.setUserId(account.getUserId());
+            eventLog.setAccountId(account.getId());
             List<String> detail = new LinkedList<>();
             detail.add("签到" + ("true".equals(result.getCheckin_result()) ? "成功" : "成功"));
             detail.add("累计" + (result.getContinuity()) + "天");
