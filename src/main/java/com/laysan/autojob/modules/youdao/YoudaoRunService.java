@@ -94,6 +94,7 @@ public class YoudaoRunService implements AutoRun {
             }
             eventLog.setType(AccountType.MODULE_YOUDAO.getCode());
             eventLog.setUserId(account.getUserId());
+            eventLog.setAccountId(account.getId());
 
             String text = response.body().string();
             //{"total":4194304,"success":0,"time":1613800646734,"space":4194304}

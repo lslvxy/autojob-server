@@ -90,7 +90,10 @@ public class Cloud189RunService implements AutoRun {
             FcUtils.createFunction(account);
             ThreadUtil.sleep(500);
             detail = FcUtils.invokeFunction(account);
-            System.out.println(detail);
+            log.info(detail);
+            if (detail.startsWith("{")) {
+                detail = "签到失败,请确认验证码";
+            }
             ThreadUtil.sleep(200);
             FcUtils.deleteFunction(account);
         } catch (Exception e) {
