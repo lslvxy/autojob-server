@@ -59,15 +59,12 @@ public class AutojobApplication implements CommandLineRunner {
                     quartzBean.setCronExpression(JobUtils.buildCron(account));
                     quartzBeanRepository.save(quartzBean);
                     try {
-//                        FcUtils.createFunction(account);
-
                         QuartzUtils.createScheduleJob(scheduler, quartzBean);
 //                    QuartzUtils.runOnce(scheduler,quartzBean.getJobName());
                     } catch (Exception e) {
                         e.printStackTrace();
                         QuartzUtils.updateScheduleJob(scheduler, quartzBean);
                     }
-                    log.info("{} in {}", i, size);
                 }
             } catch (Exception e) {
             }
