@@ -59,7 +59,7 @@ public class SystemController {
         result.add(yun139);
 
         TypeDTO wps = new TypeDTO();
-        wps.setType(AccountType.MODULE_YOUDAO.getCode());
+        wps.setType(AccountType.MODULE_WPS.getCode());
         wps.setName("WPS");
         wps.setIcon("https://tse3-mm.cn.bing.net/th/id/OIP.f8WmQ2SL6FirjzcebPVL5AHaHa?pid=ImgDet&rs=1");
         //        wps.setStatus("开发中");
