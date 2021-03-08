@@ -108,7 +108,7 @@ def main():
     }
     # req = requests.post(url=api, data=data)
     print(data)
-    return data
+    return content.encode('utf8')
 
 def main_handler(event, context):
     return main()
