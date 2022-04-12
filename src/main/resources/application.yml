@@ -1,0 +1,60 @@
+spring:
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+  # DATABASE CONFIG
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/autojob?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+    hikari:
+      minimum-idle: 10
+      maximum-pool-size: 25
+      auto-commit: true
+      idle-timeout: 30000
+      pool-name: HikariCP
+      max-lifetime: 60000
+      connection-timeout: 30000
+      connection-test-query: select 1
+    initialization-mode: always
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    generate-ddl: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+  h2:
+    console:
+      enabled: true
+      path: /h2
+      settings:
+        web-allow-others: true
+  thymeleaf:
+    mode: HTML5
+    encoding: UTF-8
+    content-type: text/html
+    cache: false
+
+
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      platform: mysql
+      initialize-schema: ALWAYS
+
+  port: 80
+
+autojob:
+  aes_key: ${AUTOJOB_ENCRYPT_KEY}
+
+ok:
+  http:
+    connect-timeout: 60
+    read-timeout: 60
+    max-idle-connections: 200
+    keep-alive-duration: 300
+logging:
+  level:
+    com:
+      laysan:
+        autojob: debug
