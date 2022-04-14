@@ -1,36 +1,26 @@
 package com.laysan.autojob.core.controller;
 
-import com.laysan.autojob.core.entity.Account;
+import com.alibaba.cola.dto.PageResponse;
 import com.laysan.autojob.core.entity.TaskLog;
-import com.laysan.autojob.core.repository.TaskLogRepository;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import com.laysan.autojob.core.service.TaskLogService;
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("logs")
-public class LogController {
+public class LogController extends BaseController {
 
     @Resource
-    private TaskLogRepository taskLogRepository;
+    private TaskLogService taskLogService;
 
-    @PostMapping("list")
+    @GetMapping("logs")
     @ResponseBody
-    public List getLogs(@RequestBody Account dto) {
-        TaskLog el = new TaskLog();
-        el.setUserId(dto.getUserId());
-        el.setType(dto.getType());
-        Example<TaskLog> ex = Example.of(el);
-        PageRequest page = PageRequest.of(0, 20, Sort.by(Direction.DESC, "gmtCreate"));
-        return taskLogRepository.findAll(ex, page).toList();
+    public PageResponse getLogs(int current, int pageSize, HttpServletRequest request) {
+        Page<TaskLog> accountPage = taskLogService.findAll(getLoginUserId(request), getPageRequest(current, pageSize));
+        return PageResponse.of(accountPage.getContent(), Math.toIntExact(accountPage.getTotalElements()), pageSize, current);
     }
 }

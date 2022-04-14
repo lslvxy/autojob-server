@@ -2,12 +2,15 @@ package com.laysan.autojob.modules.everphoto;
 
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.exception.Assert;
 import com.alibaba.cola.exception.BizException;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.laysan.autojob.core.constants.AccountType;
 import com.laysan.autojob.core.entity.Account;
+import com.laysan.autojob.core.repository.AccountRepository;
 import com.laysan.autojob.core.service.AutoRun;
 import com.laysan.autojob.core.service.MessageService;
 import com.laysan.autojob.core.service.TaskLogService;
@@ -39,6 +42,8 @@ public class EverPhotoRunService implements AutoRun {
     private MessageService messageService;
     @Autowired
     private AESUtil aesUtil;
+    @Autowired
+    private AccountRepository accountRepository;
 
 
     @Override
@@ -49,9 +54,19 @@ public class EverPhotoRunService implements AutoRun {
 
     @Override
     public boolean run(Account account) throws Exception {
-        LoginResult loginResult = login(account);
-        String token = loginResult.getToken();
+        JSONObject jsonObject = account.buildExtendInfo();
+        String token = jsonObject.getString("token");
+        if (StrUtil.isBlank(token)) {
+            LoginResult loginResult = login(account);
+            token = loginResult.getToken();
+        }
         CheckInResult checkInResult = checkIn(account, token);
+        //未登录
+        if (ObjectUtil.isNull(checkInResult)) {
+            LoginResult loginResult = login(account);
+            token = loginResult.getToken();
+            checkInResult = checkIn(account, token);
+        }
         taskLogService.saveSuccessLog(account, checkInResult.toString());
         messageService.sendMessage(account.getUserId(), AccountType.MODULE_EVERPHOTO.getDesc() + "时光相册签到", checkInResult.toString());
         return true;
@@ -60,16 +75,7 @@ public class EverPhotoRunService implements AutoRun {
     private CheckInResult checkIn(Account account, String token) throws IOException {
         OkHttpClient client = new OkHttpClient();
         RequestBody body = new FormBody.Builder().build();
-        Request request = new Request.Builder()
-                .url(EverPhotoConstant.CHECKIN_URL)
-                .post(body)
-                .header("User-Agent", "EverPhoto/2.7.0 (Android;2702;ONEPLUS A6000;28;oppo")
-                .header("x-device-mac", "02:00:00:00:00:00")
-                .header("application", "tc.everphoto")
-                .header("x-locked", "1")
-                .header("content-length", "0")
-                .header("authorization", "Bearer " + token)
-                .build();
+        Request request = new Request.Builder().url(EverPhotoConstant.CHECKIN_URL).post(body).header("User-Agent", "EverPhoto/2.7.0 (Android;2702;ONEPLUS A6000;28;oppo").header("x-device-mac", "02:00:00:00:00:00").header("application", "tc.everphoto").header("x-locked", "1").header("content-length", "0").header("authorization", "Bearer " + token).build();
         try (Response response = client.newCall(request).execute()) {
             Assert.notNull(response.body(), "签到失败,请求错误");
             String responseStr = response.body().string();
@@ -81,6 +87,9 @@ public class EverPhotoRunService implements AutoRun {
             if (ObjectUtil.isNull(httpResult)) {
                 LogUtils.error(log, AccountType.MODULE_EVERPHOTO, account, "checkIn error,httpResult is {}", httpResult);
                 throw new BizException("签到失败,未获取到登录信息");
+            }
+            if (ObjectUtil.equals(httpResult.getCode(), 20104)) {
+                return null;
             }
             if (ObjectUtil.notEqual(httpResult.getCode(), 0)) {
                 LogUtils.error(log, AccountType.MODULE_EVERPHOTO, account, "checkIn error,httpResult is {}", httpResult);
@@ -99,17 +108,7 @@ public class EverPhotoRunService implements AutoRun {
 
         OkHttpClient client = new OkHttpClient();
         RequestBody body = new FormBody.Builder().add("mobile", phone).add("password", password).build();
-        Request request = new Request.Builder()
-                .url(EverPhotoConstant.LOGIN_URL)
-                .post(body)
-                .header("User-Agent", "EverPhoto/2.7.0 (Android;2702;ONEPLUS A6000;28;oppo")
-                .header("x-device-mac", "02:00:00:00:00:00")
-                .header("application", "tc.everphoto")
-                .header("authorization", "Bearer 94P6RfZFfqvVQ2hH4jULaYGI")
-                .header("x-locked", "1")
-                .header("content-length", "0")
-                .header("accept-encoding", "gzip")
-                .build();
+        Request request = new Request.Builder().url(EverPhotoConstant.LOGIN_URL).post(body).header("User-Agent", "EverPhoto/2.7.0 (Android;2702;ONEPLUS A6000;28;oppo").header("x-device-mac", "02:00:00:00:00:00").header("application", "tc.everphoto").header("authorization", "Bearer 94P6RfZFfqvVQ2hH4jULaYGI").header("x-locked", "1").header("content-length", "0").header("accept-encoding", "gzip").build();
         try (Response response = client.newCall(request).execute()) {
             String responseStr = uncompress(response.body().bytes());
             if (log.isDebugEnabled()) {
@@ -130,6 +129,8 @@ public class EverPhotoRunService implements AutoRun {
                 LogUtils.error(log, AccountType.MODULE_EVERPHOTO, account, "token is null");
                 throw new BizException("登录失败," + "获取Token失败");
             }
+            account.setExtendInfo(JSON.toJSONString(loginResult));
+            accountRepository.save(account);
             return loginResult;
         }
     }

@@ -18,6 +18,9 @@ public class UserService {
     @Resource
     private UserOauthRepository userOauthRepository;
 
+    public User findById(Long id) {
+        return userRepository.findById(id).orElse(null);
+    }
 
     public User findByAccessToken(String accessToken) {
         return userRepository.findByAccessToken(accessToken);

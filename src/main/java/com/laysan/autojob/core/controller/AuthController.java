@@ -44,18 +44,17 @@ public class AuthController {
     }
 
     @GetMapping("/callback/{source}")
-    public Object login(@PathVariable("source") String source, AuthCallback callback, HttpServletRequest request) {
+    public void login(@PathVariable("source") String source, AuthCallback callback, HttpServletRequest request, HttpServletResponse response) throws IOException {
         Assert.notNull(source, "source cannot be null");
         AuthKeyConfig authKeyConfig = authKeyConfigService.findBySource(source);
         AuthRequest authRequest = AuthRequestBuilderRegister.buildAuthRequest(authKeyConfig);
-        AuthResponse<AuthUser> response = authRequest.login(callback);
-        log.info(JSON.toJSONString(response));
+        AuthResponse<AuthUser> authResponse = authRequest.login(callback);
+        log.info(JSON.toJSONString(authResponse));
 
-        if (response.ok()) {
-            User save = userService.save(response.getData());
-            return save.getAccessToken();
+        if (authResponse.ok()) {
+            User save = userService.save(authResponse.getData());
+            response.sendRedirect("http://localhost:8000/?t=" + save.getAccessToken());
         }
-        return null;
 
     }
 

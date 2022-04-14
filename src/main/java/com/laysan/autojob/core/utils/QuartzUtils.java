@@ -32,16 +32,16 @@ public class QuartzUtils {
     public static void createScheduleJob(Scheduler scheduler, Account account) throws Exception {
         //获取到定时任务的执行类  必须是类的绝对路径名称
         //定时任务类需要是job类的具体实现 QuartzJobBean是job的抽象类。
-        Class<? extends Job> jobClass = (Class<? extends Job>) Class.forName(account.getJobClass());
+        Class<? extends Job> jobClass = (Class<? extends Job>) Class.forName(account.buildJobClass());
         // 构建定时任务信息
         JobDataMap s = new JobDataMap();
         s.put("accountId", account.getId());
-        JobDetail jobDetail = JobBuilder.newJob(jobClass).withIdentity(account.getJobName()).usingJobData(s)
+        JobDetail jobDetail = JobBuilder.newJob(jobClass).withIdentity(account.buildJobName()).usingJobData(s)
                 .build();
         // 设置定时任务执行方式
-        CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(account.getCronExpression());
+        CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(account.buildCronExpression());
         // 构建触发器trigger
-        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity(account.getJobName()).withSchedule(scheduleBuilder).build();
+        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity(account.buildJobName()).withSchedule(scheduleBuilder).build();
         scheduler.scheduleJob(jobDetail, trigger);
 
     }
@@ -94,7 +94,7 @@ public class QuartzUtils {
      * @throws SchedulerException
      */
     public static void runOnce(Scheduler scheduler, Account account) {
-        JobKey jobKey = account.getJobKey();
+        JobKey jobKey = account.buildJobKey();
         try {
             if (scheduler.checkExists(jobKey)) {
                 scheduler.triggerJob(jobKey);
@@ -117,9 +117,9 @@ public class QuartzUtils {
     public static void updateScheduleJob(Scheduler scheduler, Account account) {
         try {
             //获取到对应任务的触发器
-            TriggerKey triggerKey = TriggerKey.triggerKey(account.getJobName());
+            TriggerKey triggerKey = TriggerKey.triggerKey(account.buildJobName());
             //设置定时任务执行方式
-            CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(account.getCronExpression());
+            CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(account.buildCronExpression());
             //重新构建任务的触发器trigger
             CronTrigger trigger = (CronTrigger) scheduler.getTrigger(triggerKey);
             if (Objects.isNull(trigger)) {
