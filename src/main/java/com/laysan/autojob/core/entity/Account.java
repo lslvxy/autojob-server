@@ -123,4 +123,8 @@ public class Account extends BaseEntity {
         }
         return JSON.parseObject(extendInfo);
     }
+
+    public void saveExtendInfo(JSONObject jsonObject) {
+        this.setExtendInfo(jsonObject.toJSONString());
+    }
 }
