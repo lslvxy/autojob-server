@@ -58,8 +58,8 @@ public class AccountController extends BaseController {
         Long userId = getLoginUserId(request);
         String typeDesc = AccountType.get(account.getType()).getDesc();
         long accountCountByType = accountService.findAccountCountByType(userId, account.getType());
-        if (accountCountByType >= 5) {
-            return PageResponse.buildFailure("500", "[" + typeDesc + "]账号数量超过限制[5]");
+        if (accountCountByType >= 3) {
+            return PageResponse.buildFailure("500", "[" + typeDesc + "]账号数量超过限制[3]");
         }
         if (accountService.accountExistByType(userId, account.getType())) {
             return PageResponse.buildFailure("500", "[" + typeDesc + "]账号[" + account.getAccount() + "]已存在");
@@ -67,7 +67,9 @@ public class AccountController extends BaseController {
         account.setUserId(userId);
         account.setTodayExecuted(0);
         account.setStatus(1);
-        account.setTime(CharSequenceUtil.subBefore(account.getTime(), ":", true));
+        if (account.getTime().length() > 5) {
+            account.setTime(CharSequenceUtil.subBefore(account.getTime(), ":", true));
+        }
         QuartzUtils.createScheduleJob(scheduler, accountService.save(account));
         return PageResponse.buildSuccess();
     }

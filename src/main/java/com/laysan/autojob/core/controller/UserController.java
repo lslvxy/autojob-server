@@ -2,8 +2,9 @@ package com.laysan.autojob.core.controller;
 
 import com.alibaba.cola.dto.MultiResponse;
 import com.alibaba.cola.dto.SingleResponse;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
+import com.laysan.autojob.core.constants.AccountType;
+import com.laysan.autojob.core.dto.TypeDTO;
+import com.laysan.autojob.core.entity.User;
 import com.laysan.autojob.core.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("user")
@@ -19,20 +23,16 @@ public class UserController extends BaseController {
     private UserService userService;
 
     @GetMapping("menu")
-    public MultiResponse menu(HttpServletRequest request) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[")
-                .append("{'name':'task','parentId':0,'id':1,'meta':{'icon':'dashboard','title':'我的任务','show':true},'component':'Workplace'}")
-                .append(",{'name':'log','parentId':0,'id':2,'meta':{'icon':'dashboard','title':'任务日志','show':true},'component':'Workplace'}")
-                .append("]")
-        ;
-        JSONArray menus = JSON.parseArray(sb.toString());
-        return MultiResponse.of(menus);
+    public MultiResponse<TypeDTO> menu(HttpServletRequest request) {
+        AccountType[] values = AccountType.values();
+        List<TypeDTO> list = Arrays.stream(values).map(at -> new TypeDTO(at.getCode(), at.getDesc(), at.getIcon())).collect(Collectors.toList());
+        return MultiResponse.of(list);
     }
 
     @GetMapping("info")
-    public SingleResponse info(HttpServletRequest request) {
+    public SingleResponse<User> info(HttpServletRequest request) {
         Long userId = getLoginUserId(request);
         return SingleResponse.of(userService.findById(userId));
     }
+
 }

@@ -9,5 +9,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     User findByAccessToken(String accessToken);
 
-    User findByUuidAndSource(String uuid, String source);
+    User findByOpenId(String uuid);
 }

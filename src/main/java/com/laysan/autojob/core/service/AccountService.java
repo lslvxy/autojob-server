@@ -6,6 +6,7 @@ import com.laysan.autojob.core.utils.AESUtil;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -28,7 +29,7 @@ public class AccountService {
 
     public Page<Account> findAccountPage(Long userId, PageRequest pageRequest) {
         Example<Account> ex = Example.of(new Account(userId));
-        Page<Account> all = accountRepository.findAll(ex, pageRequest);
+        Page<Account> all = accountRepository.findAll(ex, pageRequest.withSort(Sort.by(Sort.Direction.DESC, "type")));
         all.getContent().forEach(account -> account.setPassword("******"));
         return all;
     }

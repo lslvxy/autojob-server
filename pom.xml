@@ -91,12 +91,6 @@
             <artifactId>jasypt-spring-boot-starter</artifactId>
             <version>3.0.4</version>
         </dependency>
-
-        <dependency>
-            <groupId>me.zhyd.oauth</groupId>
-            <artifactId>JustAuth</artifactId>
-            <version>1.16.5</version>
-        </dependency>
         <!-- quartz -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

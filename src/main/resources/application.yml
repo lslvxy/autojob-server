@@ -41,7 +41,7 @@ spring:
       initialize-schema: ALWAYS
 
 server:
-  port: 80
+  port: 8080
 
 autojob:
   aes_key: ${AUTOJOB_ENCRYPT_KEY}

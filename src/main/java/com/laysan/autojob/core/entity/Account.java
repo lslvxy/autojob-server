@@ -51,6 +51,8 @@ public class Account extends BaseEntity {
     private String type;
     @Transient
     private String typeName;
+    @Transient
+    private String typeIcon;
 
     /**
      * 时间
@@ -106,6 +108,13 @@ public class Account extends BaseEntity {
             return StrUtil.EMPTY;
         }
         return AccountType.get(this.getType()).getDesc();
+    }
+
+    public String getTypeIcon() {
+        if (StrUtil.isBlank(type)) {
+            return StrUtil.EMPTY;
+        }
+        return AccountType.get(this.getType()).getIcon();
     }
 
     public JSONObject buildExtendInfo() {
