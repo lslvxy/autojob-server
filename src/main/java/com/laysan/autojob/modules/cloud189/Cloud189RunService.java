@@ -244,6 +244,7 @@ public class Cloud189RunService implements AutoRun {
 
     @SneakyThrows
     private Boolean login(String username, String password) {
+        password = aesUtil.decrypt(password);
         Map<String, String> prepareMap = beforeLogin();
         String encryptUsername = encrypt(username, prepareMap.get("rsaKey"));
         String encryptPassword = encrypt(password, prepareMap.get("rsaKey"));
