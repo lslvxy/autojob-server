@@ -45,7 +45,7 @@ import lombok.Data;
  * }
  */
 @Data
-public class HttpResult<T> {
+public class EverPhotoHttpResult<T> {
     public Integer timestamp;
     public Integer code;
     public String message;

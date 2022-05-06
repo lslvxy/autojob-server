@@ -1,8 +1,8 @@
 package com.laysan.autojub.test;
 
 import com.laysan.autojob.AutojobApplication;
-import com.laysan.autojob.core.entity.Account;
 import com.laysan.autojob.core.service.AccountService;
+import com.laysan.autojob.core.utils.AESUtil;
 import com.laysan.autojob.modules.cloud189.Cloud189RunService;
 import com.laysan.autojob.modules.everphoto.EverPhotoRunService;
 import org.junit.jupiter.api.Test;
@@ -18,11 +18,14 @@ class SyncTests {
     private Cloud189RunService cloud189RunService;
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private AESUtil aesUtil;
 
     @Test
     void comm() throws Exception {
-        Account account = accountService.findById(1L);
-        cloud189RunService.run(account, false);
+        System.out.println(aesUtil.encrypt("123456"));
+//        Account account = accountService.findById(1L);
+//        cloud189RunService.run(account, false);
 
     }
 

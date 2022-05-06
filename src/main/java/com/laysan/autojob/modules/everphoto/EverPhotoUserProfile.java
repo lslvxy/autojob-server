@@ -3,7 +3,7 @@ package com.laysan.autojob.modules.everphoto;
 import lombok.Data;
 
 @Data
-public class UserProfile {
+public class EverPhotoUserProfile {
     public Long id;
     public String name;
     public String countryCode;

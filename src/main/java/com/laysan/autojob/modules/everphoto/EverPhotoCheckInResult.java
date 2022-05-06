@@ -5,7 +5,7 @@ import lombok.Data;
 
 
 @Data
-public class CheckInResult {
+public class EverPhotoCheckInResult {
     private boolean checkinResult;
     private Long continuity;
     private Long totalReward;

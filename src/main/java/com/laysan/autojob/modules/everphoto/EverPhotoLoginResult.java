@@ -4,7 +4,7 @@ import lombok.Data;
 
 
 @Data
-public class LoginResult {
+public class EverPhotoLoginResult {
     public String token;
-    public UserProfile userProfile;
+    public EverPhotoUserProfile userProfile;
 }

@@ -257,7 +257,9 @@ public class Cloud189RunService implements AutoRun {
         Response response = AutojobContextHolder.get().getClient().newCall(request).execute();
 
         String responseText = Objects.requireNonNull(response.body()).string();
-        LogUtils.info(log, AccountType.MODULE_CLOUD189, AutojobContextHolder.get().getAccount(), "login Result:" + responseText);
+        if (log.isDebugEnabled()) {
+            LogUtils.debug(log, AccountType.MODULE_CLOUD189, AutojobContextHolder.get().getAccount(), "login Result:" + responseText);
+        }
         Cloud189LoginResult loginResult = JSON.parseObject(responseText, Cloud189LoginResult.class);
         if (loginResult.getResult().equals(0)) {
             String toUrl = loginResult.getToUrl();
@@ -277,9 +279,9 @@ public class Cloud189RunService implements AutoRun {
         Request request = new Request.Builder().url(checkInUrl).header("User-Agent", "Mozilla/5.0 (Linux; Android 5.1.1; SM-G930K Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) " + "Version/4.0" + " Chrome/74.0.3729.136 Mobile Safari/537.36 Ecloud/8.6.3 Android/22 clientId/355325117317828 " + "clientModel/SM-G930K imsi/460071114317824 clientChannelId/qq proVersion/1.0.6").header("Referer", "https://m.cloud.189.cn/zhuanti/2016/sign/index.jsp?albumBackupOpened=1").header("Host", "m.cloud.189.cn").header("Accept-Encoding", "gzip, deflate").build();
         Response response = AutojobContextHolder.get().getClient().newCall(request).execute();
         String signInResult = uncompress(response.body().bytes());
-        //{"userSignId":null,"userId":499126215,"signTime":"2022-05-05T02:29:23.679+00:00","netdiskBonus":29,"isSign":false}
-        LogUtils.info(log, AccountType.MODULE_CLOUD189, AutojobContextHolder.get().getAccount(), "signIn  Result:" + signInResult);
-
+        if (log.isDebugEnabled()) {
+            LogUtils.debug(log, AccountType.MODULE_CLOUD189, AutojobContextHolder.get().getAccount(), "signIn  Result:" + signInResult);
+        }
         Cloud189CheckInResult result = JSON.parseObject(signInResult, Cloud189CheckInResult.class);
         if (result.isError()) {
             throw new BizException(result.getErrorMsg());
