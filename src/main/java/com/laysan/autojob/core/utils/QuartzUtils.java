@@ -36,8 +36,7 @@ public class QuartzUtils {
         // 构建定时任务信息
         JobDataMap s = new JobDataMap();
         s.put("accountId", account.getId());
-        JobDetail jobDetail = JobBuilder.newJob(jobClass).withIdentity(account.buildJobName()).usingJobData(s)
-                .build();
+        JobDetail jobDetail = JobBuilder.newJob(jobClass).withIdentity(account.buildJobName()).usingJobData(s).build();
         // 设置定时任务执行方式
         CronScheduleBuilder scheduleBuilder = CronScheduleBuilder.cronSchedule(account.buildCronExpression());
         // 构建触发器trigger
@@ -89,22 +88,35 @@ public class QuartzUtils {
 
     /**
      * 根据任务名称立即运行一次定时任务
+     * 强制执行
+     *
+     * @param scheduler 调度器
+     * @throws SchedulerException
+     */
+    public static void runOnce(Scheduler scheduler, Account account, boolean forceRun) {
+        JobKey jobKey = account.buildJobKey();
+        try {
+            JobDataMap map = new JobDataMap();
+            map.put("forceRun", forceRun);
+            if (scheduler.checkExists(jobKey)) {
+                scheduler.triggerJob(jobKey, map);
+            } else {
+                createScheduleJob(scheduler, account);
+                scheduler.triggerJob(jobKey, map);
+            }
+        } catch (Exception e) {
+            LogUtils.error(log, "Quartz", account, "Quartz runOnce error, {}", e.getMessage());
+        }
+    }
+
+    /**
+     * 根据任务名称立即运行一次定时任务
      *
      * @param scheduler 调度器
      * @throws SchedulerException
      */
     public static void runOnce(Scheduler scheduler, Account account) {
-        JobKey jobKey = account.buildJobKey();
-        try {
-            if (scheduler.checkExists(jobKey)) {
-                scheduler.triggerJob(jobKey);
-            } else {
-                createScheduleJob(scheduler, account);
-                scheduler.triggerJob(jobKey);
-            }
-        } catch (Exception e) {
-            LogUtils.error(log, "Quartz", account, "Quartz runOnce error, {}", e.getMessage());
-        }
+        runOnce(scheduler, account, false);
     }
 
     /**

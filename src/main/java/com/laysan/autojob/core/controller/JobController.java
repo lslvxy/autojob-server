@@ -29,7 +29,7 @@ public class JobController extends BaseController {
         if (!NumberUtil.equals(account.getUserId(), loginUserId)) {
             return "您无权操作";
         }
-        QuartzUtils.runOnce(scheduler, account);
+        QuartzUtils.runOnce(scheduler, account, true);
         return "Success";
     }
 

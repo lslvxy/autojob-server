@@ -134,7 +134,7 @@ public class AccountController extends BaseController {
 
                 accountRepository.save(account);
 
-                autoRunService.run(account);
+//                autoRunService.run(account);
 
             }
         } catch (Exception e) {

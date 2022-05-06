@@ -32,7 +32,7 @@ public class AutojobTask extends QuartzJobBean {
     protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         JobDetail jobDetail = jobExecutionContext.getJobDetail();
         final String name = jobDetail.getKey().getName();
-        JobDataMap jobDataMap = jobDetail.getJobDataMap();
+        JobDataMap jobDataMap = jobExecutionContext.getMergedJobDataMap();
         log.info("定时任务-执行Job:{}", name);
         Long accountId = Long.valueOf(String.valueOf(jobDataMap.get("accountId")));
 
@@ -45,6 +45,6 @@ public class AutojobTask extends QuartzJobBean {
             log.info("account type is null,accountId={}", accountId);
             return;
         }
-        autoRunService.run(account);
+        autoRunService.run(account, jobDataMap.containsKey("forceRun") && jobDataMap.getBoolean("forceRun"));
     }
 }

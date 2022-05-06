@@ -21,8 +21,7 @@ public class AutoRunService {
     AccountRepository accountRepository;
 
     @Async
-
-    public void run(Account account) {
+    public void run(Account account, boolean forceRun) {
         log.info("run job {}", JSON.toJSONString(account));
         AutoRun autoRun = AutoRun.HANDLERS.get(account.getType());
         if (ObjectUtil.isNull(autoRun)) {
@@ -30,7 +29,7 @@ public class AutoRunService {
             taskLogService.saveErrorLog(account, "任务执行器配置错误");
             return;
         }
-        Try.of(() -> autoRun.run(account, false)).onSuccess(result -> {
+        Try.of(() -> autoRun.run(account, forceRun)).onSuccess(result -> {
             account.setLastRunTime(new Date());
             accountRepository.save(account);
         }).onFailure(e -> {
