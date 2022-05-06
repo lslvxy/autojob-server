@@ -37,12 +37,12 @@ public class ServiceTemplete {
             taskLog.setSucceed(0);
         } finally {
             long time = System.currentTimeMillis() - start;
-            LogUtils.info(log, accountType, account.getAccount(), "定时任务执行完成.花费时间:{}s", time / 1000);
+            LogUtils.info(log, accountType, account.getAccount(), "定时任务执行完成.花费时间:{}ms", time);
             taskLog.setUserId(account.getUserId());
             taskLog.setType(accountType.getCode());
             taskLog.setAccount(account.getAccount());
             taskLog.setAccountId(account.getId());
-            taskLog.setTimeCosted(time / 1000);
+            taskLog.setTimeCosted(time);
             taskLog.setExecutedDay(DateUtil.format(new Date(), DatePattern.NORM_DATE_PATTERN));
 
             taskLog.setDetail(AutojobContextHolder.get().getDetailMessage());
