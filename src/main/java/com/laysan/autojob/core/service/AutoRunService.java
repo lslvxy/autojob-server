@@ -30,13 +30,11 @@ public class AutoRunService {
             taskLogService.saveErrorLog(account, "任务执行器配置错误");
             return;
         }
-        Try.of(() -> autoRun.run(account)).onSuccess(result -> {
-            account.setTodayExecuted(1);
+        Try.of(() -> autoRun.run(account, false)).onSuccess(result -> {
             account.setLastRunTime(new Date());
             accountRepository.save(account);
         }).onFailure(e -> {
             log.error("run job error", e);
-            account.setTodayExecuted(2);
             account.setLastRunTime(new Date());
             accountRepository.save(account);
             taskLogService.saveErrorLog(account, e.getMessage());

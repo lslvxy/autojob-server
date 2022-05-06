@@ -22,7 +22,7 @@ class SyncTests {
     @Test
     void comm() throws Exception {
         Account account = accountService.findById(1L);
-        cloud189RunService.run(account);
+        cloud189RunService.run(account, false);
 
     }
 

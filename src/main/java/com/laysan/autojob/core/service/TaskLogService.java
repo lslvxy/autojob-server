@@ -1,5 +1,7 @@
 package com.laysan.autojob.core.service;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import com.laysan.autojob.core.entity.Account;
 import com.laysan.autojob.core.entity.TaskLog;
 import com.laysan.autojob.core.repository.TaskLogRepository;
@@ -11,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Date;
 
 @Service
 @Slf4j
@@ -44,4 +47,17 @@ public class TaskLogService {
         Example<TaskLog> ex = Example.of(new TaskLog(userId));
         return taskLogRepository.findAll(ex, pageRequest.withSort(Sort.by(Sort.Direction.DESC, "gmtCreate")));
     }
+
+    public Boolean todayExecuted(Account account) {
+        TaskLog probe = new TaskLog(account.getUserId());
+        probe.setSucceed(1);
+        probe.setType(account.getType());
+        probe.setAccount(account.getAccount());
+        probe.setExecutedDay(DateUtil.format(new Date(), DatePattern.NORM_DATE_PATTERN));
+        Example<TaskLog> ex = Example.of(probe);
+
+
+        return taskLogRepository.exists(ex);
+    }
+
 }

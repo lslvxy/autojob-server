@@ -65,11 +65,6 @@ public class Account extends BaseEntity {
      */
     private Date lastRunTime;
     /**
-     * 今日是否已执行
-     */
-    private Integer todayExecuted;
-
-    /**
      * 任务状态 1启动 0暂停
      */
     private Integer status;

@@ -53,7 +53,7 @@ public class EverPhotoRunService implements AutoRun {
     }
 
     @Override
-    public boolean run(Account account) throws Exception {
+    public boolean run(Account account, boolean forceRun) throws Exception {
         JSONObject jsonObject = account.buildExtendInfo();
         String token = jsonObject.getString("token");
         if (StrUtil.isBlank(token)) {

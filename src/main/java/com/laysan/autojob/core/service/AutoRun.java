@@ -11,5 +11,6 @@ public interface AutoRun {
     default void registry() {
     }
 
-    boolean run(Account account) throws Exception;
+
+    boolean run(Account account, boolean forceRun) throws Exception;
 }

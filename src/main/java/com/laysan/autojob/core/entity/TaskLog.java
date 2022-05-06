@@ -29,6 +29,8 @@ public class TaskLog extends BaseEntity {
     private Integer succeed;
     @Column(nullable = false, columnDefinition = "text")
     private String detail;
+    private Long timeCosted;
+    private String executedDay;
 
     public TaskLog(Long userId) {
         this.userId = userId;

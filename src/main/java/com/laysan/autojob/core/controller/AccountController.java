@@ -65,7 +65,6 @@ public class AccountController extends BaseController {
             return PageResponse.buildFailure("500", "[" + typeDesc + "]账号[" + account.getAccount() + "]已存在");
         }
         account.setUserId(userId);
-        account.setTodayExecuted(0);
         account.setStatus(1);
         if (account.getTime().length() > 5) {
             account.setTime(CharSequenceUtil.subBefore(account.getTime(), ":", true));

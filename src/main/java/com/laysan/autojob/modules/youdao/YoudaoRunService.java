@@ -7,11 +7,17 @@ import com.laysan.autojob.core.entity.Account;
 import com.laysan.autojob.core.entity.TaskLog;
 import com.laysan.autojob.core.repository.TaskLogRepository;
 import com.laysan.autojob.core.service.AutoRun;
-import com.laysan.autojob.core.service.AutoRunService;
 import com.laysan.autojob.core.service.MessageService;
 import com.laysan.autojob.core.utils.AESUtil;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
+import okhttp3.Cookie;
+import okhttp3.CookieJar;
+import okhttp3.FormBody;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,7 +47,7 @@ public class YoudaoRunService implements AutoRun {
     }
 
     @Override
-    public boolean run(Account account) {
+    public boolean run(Account account, boolean forceRun) {
         try {
             TaskLog taskLog = new TaskLog();
 
@@ -118,7 +124,7 @@ public class YoudaoRunService implements AutoRun {
 
     public static void main(String[] args) {
         YoudaoRunService s = new YoudaoRunService();
-        Account ss=new Account();
-        s.run(ss);
+        Account ss = new Account();
+        s.run(ss, false);
     }
 }

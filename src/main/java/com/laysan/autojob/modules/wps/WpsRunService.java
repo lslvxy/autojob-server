@@ -1,4 +1,3 @@
-
 package com.laysan.autojob.modules.wps;
 
 import com.laysan.autojob.core.constants.AccountType;
@@ -6,9 +5,7 @@ import com.laysan.autojob.core.entity.Account;
 import com.laysan.autojob.core.entity.TaskLog;
 import com.laysan.autojob.core.repository.TaskLogRepository;
 import com.laysan.autojob.core.service.AutoRun;
-import com.laysan.autojob.core.service.AutoRunService;
 import com.laysan.autojob.core.service.MessageService;
-//import com.laysan.autojob.core.utils.FcUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,11 +19,11 @@ import javax.annotation.PostConstruct;
 @Service
 @Slf4j
 public class WpsRunService implements AutoRun {
-    private String             phone = "abc";
+    private String phone = "abc";
     @Autowired
     private TaskLogRepository taskLogRepository;
     @Autowired
-    private MessageService     messageService;
+    private MessageService messageService;
 
     @Override
     @PostConstruct
@@ -35,7 +32,7 @@ public class WpsRunService implements AutoRun {
     }
 
     @Override
-    public boolean run(Account account) {
+    public boolean run(Account account, boolean forceRun) {
         TaskLog taskLog = new TaskLog();
         taskLog.setUserId(account.getUserId());
         taskLog.setType(AccountType.MODULE_WPS.getCode());
