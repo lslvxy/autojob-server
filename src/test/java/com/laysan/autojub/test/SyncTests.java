@@ -2,6 +2,7 @@ package com.laysan.autojub.test;
 
 import com.laysan.autojob.AutojobApplication;
 import com.laysan.autojob.core.service.AccountService;
+import com.laysan.autojob.core.service.MessageService;
 import com.laysan.autojob.core.utils.AESUtil;
 import com.laysan.autojob.modules.cloud189.Cloud189RunService;
 import com.laysan.autojob.modules.everphoto.EverPhotoRunService;
@@ -19,11 +20,14 @@ class SyncTests {
     @Autowired
     private AccountService accountService;
     @Autowired
+    private MessageService messageService;
+    @Autowired
     private AESUtil aesUtil;
 
     @Test
     void comm() throws Exception {
-        System.out.println(aesUtil.encrypt("123456"));
+        messageService.sendMessage("111111", "title222", "desp222");
+        //System.out.println(aesUtil.encrypt("123456"));
 //        Account account = accountService.findById(1L);
 //        cloud189RunService.run(account, false);
 

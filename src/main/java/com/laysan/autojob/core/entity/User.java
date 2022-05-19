@@ -39,6 +39,15 @@ public class User extends BaseEntity {
      * token 过期时间
      */
     private Date accessTokenExpire;
+    /**
+     * sct.ftqq.com Server酱key
+     */
+    private String messageKey;
+    /**
+     * sct ==> Server酱
+     * pushdeer ==> pushdeer
+     */
+    private String messageType;
 
 
 }

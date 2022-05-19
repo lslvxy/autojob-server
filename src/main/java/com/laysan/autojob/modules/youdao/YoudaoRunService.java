@@ -65,7 +65,7 @@ public class YoudaoRunService implements AutoRun {
             }).build();
             RequestBody body = new FormBody.Builder()
                     .add("username", account.getAccount())
-                    .add("password", DigestUtils.md5Hex(aesUtil.decrypt(account.getPassword())))
+                    .add("password", DigestUtils.md5Hex(account.getPassword()))
 //                    .add("app", "web")
 //                    .add("product", "YNOTE")
 //                    .add("tp", "urstoken")
@@ -125,6 +125,8 @@ public class YoudaoRunService implements AutoRun {
     public static void main(String[] args) {
         YoudaoRunService s = new YoudaoRunService();
         Account ss = new Account();
+        ss.setAccount("");
+        ss.setPassword("");
         s.run(ss, false);
     }
 }
