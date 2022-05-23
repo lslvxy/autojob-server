@@ -19,8 +19,8 @@ public class LogController extends BaseController {
 
     @GetMapping("logs")
     @ResponseBody
-    public PageResponse getLogs(int current, int pageSize, HttpServletRequest request) {
-        Page<TaskLog> accountPage = taskLogService.findAll(getLoginUserId(request), getPageRequest(current, pageSize));
+    public PageResponse getLogs(int current, int pageSize, Long accountId, HttpServletRequest request) {
+        Page<TaskLog> accountPage = taskLogService.findAll(accountId, getPageRequest(current, pageSize));
         return PageResponse.of(accountPage.getContent(), Math.toIntExact(accountPage.getTotalElements()), pageSize, current);
     }
 }

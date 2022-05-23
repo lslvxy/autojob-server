@@ -48,8 +48,10 @@ public class TaskLogService {
         taskLogRepository.save(taskLog);
     }
 
-    public Page<TaskLog> findAll(Long userId, PageRequest pageRequest) {
-        Example<TaskLog> ex = Example.of(new TaskLog(userId));
+    public Page<TaskLog> findAll(Long accountId, PageRequest pageRequest) {
+        TaskLog probe = new TaskLog();
+        probe.setAccountId(accountId);
+        Example<TaskLog> ex = Example.of(probe);
         return taskLogRepository.findAll(ex, pageRequest.withSort(Sort.by(Sort.Direction.DESC, "gmtCreate")));
     }
 
