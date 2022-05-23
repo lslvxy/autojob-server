@@ -1,6 +1,7 @@
 package com.laysan.autojob.core.controller;
 
 import cn.hutool.core.util.NumberUtil;
+import com.alibaba.cola.dto.Response;
 import com.laysan.autojob.core.entity.Account;
 import com.laysan.autojob.core.service.AccountService;
 import com.laysan.autojob.core.utils.QuartzUtils;
@@ -23,14 +24,14 @@ public class JobController extends BaseController {
     private Scheduler scheduler;
 
     @PostMapping("/job/{id}")
-    public String run(@PathVariable("id") Long accountId, HttpServletRequest request) {
+    public Response run(@PathVariable("id") Long accountId, HttpServletRequest request) {
         Account account = accountService.findById(accountId);
         Long loginUserId = getLoginUserId(request);
         if (!NumberUtil.equals(account.getUserId(), loginUserId)) {
-            return "您无权操作";
+            Response.buildFailure("500", "您无权操作");
         }
         QuartzUtils.runOnce(scheduler, account, true);
-        return "Success";
+        return Response.buildSuccess();
     }
 
 

@@ -16,7 +16,6 @@ import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,17 +58,17 @@ public class AccountController extends BaseController {
         String typeDesc = AccountType.get(account.getType()).getDesc();
         long accountCountByType = accountService.findAccountCountByType(userId, account.getType());
         if (accountCountByType >= 3) {
-            return PageResponse.buildFailure("500", "[" + typeDesc + "]账号数量超过限制[3]");
+            return PageResponse.buildFailure("500", "数量限制[3]个");
         }
         if (accountService.accountExistByType(userId, account.getType())) {
-            return PageResponse.buildFailure("500", "[" + typeDesc + "]账号[" + account.getAccount() + "]已存在");
+            return PageResponse.buildFailure("500", "账号已存在");
         }
         account.setUserId(userId);
         account.setStatus(1);
         if (account.getTime().length() > 5) {
             account.setTime(CharSequenceUtil.subBefore(account.getTime(), ":", true));
         }
-        QuartzUtils.createScheduleJob(scheduler, accountService.saveWithEncrypt(account));
+        QuartzUtils.createScheduleJob(scheduler, accountService.createNewAccount(account));
         return PageResponse.buildSuccess();
     }
 
@@ -93,11 +92,11 @@ public class AccountController extends BaseController {
         Account formDb = accountService.findById(account.getId());
         Assert.isTrue(formDb.getUserId().equals(getLoginUserId(request)), "没有权限");
         formDb.setTime(account.getTime());
-        accountService.saveWithEncrypt(formDb);
+        accountService.createNewAccount(formDb);
         return PageResponse.buildSuccess();
     }
 
-    @DeleteMapping("/account/{id}")
+    @PutMapping("/account/{id}")
     public Response delete(@PathVariable("id") Long id, HttpServletRequest request) {
         Assert.notNull(id, "id不能为空");
         accountService.deleteById(id);

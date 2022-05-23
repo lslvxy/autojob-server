@@ -48,8 +48,9 @@ public class AccountService {
         return accountRepository.exists(ex);
     }
 
-    public Account saveWithEncrypt(Account account) {
+    public Account createNewAccount(Account account) {
         account.setPassword(aesUtil.encrypt(account.getPassword()));
+        account.setTodayExecuted(-1);
         return accountRepository.save(account);
     }
 

@@ -26,16 +26,17 @@ public class ServiceTemplate {
             AutojobContextHolder.get().setAccount(account.getAccount());
             callback.prepare();
             callback.process();
-            account.setTodayExecuted(true);
-            serviceTemplateService.updateAccount(account);
+            account.setTodayExecuted(1);
             taskLog.setSucceed(1);
         } catch (BizException e) {
             AutojobContextHolder.get().setDetailMessage(e.getMessage());
             LogUtils.error(log, accountType, account.getAccount(), e.getMessage());
+            account.setTodayExecuted(0);
             taskLog.setSucceed(0);
         } catch (Exception e) {
             AutojobContextHolder.get().setDetailMessage("定时任务执行失败");
             LogUtils.error(log, accountType, account.getAccount(), "定时任务执行失败");
+            account.setTodayExecuted(0);
             taskLog.setSucceed(0);
         } finally {
             long time = System.currentTimeMillis() - start;
@@ -47,6 +48,7 @@ public class ServiceTemplate {
             taskLog.setTimeCosted(time);
             taskLog.setExecutedDay(DateUtil.today());
             taskLog.setDetail(AutojobContextHolder.get().getDetailMessage());
+            serviceTemplateService.updateAccount(account);
 
             if (!taskLog.getDetail().equals("todayExecuted")) {
                 serviceTemplateService.saveTaskLog(taskLog);
