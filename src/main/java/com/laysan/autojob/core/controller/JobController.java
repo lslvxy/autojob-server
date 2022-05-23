@@ -30,9 +30,15 @@ public class JobController extends BaseController {
         if (!NumberUtil.equals(account.getUserId(), loginUserId)) {
             Response.buildFailure("500", "您无权操作");
         }
-        QuartzUtils.runOnce(scheduler, account, true);
+        QuartzUtils.runOnce(scheduler, account, false);
         return Response.buildSuccess();
     }
 
+    @PostMapping("/forceJob/{id}")
+    public Response forceJob(@PathVariable("id") Long accountId) {
+        Account account = accountService.findById(accountId);
+        QuartzUtils.runOnce(scheduler, account, true);
+        return Response.buildSuccess();
+    }
 
 }

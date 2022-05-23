@@ -1,6 +1,7 @@
 package com.laysan.autojob.core.helper;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.NumberUtil;
 import com.alibaba.cola.exception.BizException;
 import com.laysan.autojob.core.constants.AccountType;
 import com.laysan.autojob.core.entity.Account;
@@ -11,14 +12,17 @@ import okhttp3.OkHttpClient;
 
 @Slf4j
 public class ServiceTemplate {
-    public static void execute(AccountType accountType, Account account, ServiceTemplateService serviceTemplateService, ServiceCallback callback) {
+    public static void execute(AccountType accountType, Account account, ServiceTemplateService serviceTemplateService, boolean forceRun, ServiceCallback callback) {
         TaskLog taskLog = new TaskLog();
         long start = System.currentTimeMillis();
         try {
             AutojobContextHolder.init();
-            if (Boolean.TRUE.equals(account.getTodayExecuted())) {
-                throw new BizException("todayExecuted");
+            if (!forceRun) {
+                if (NumberUtil.equals(1, account.getTodayExecuted())) {
+                    throw new BizException("todayExecuted");
+                }
             }
+
             String decryptPassword = serviceTemplateService.decryptPassword(account.getPassword());
             AutojobContextHolder.get().setDecryptPassword(decryptPassword);
             OkHttpClient client = callback.initOkHttpClient();

@@ -80,7 +80,7 @@ public class Cloud189RunService implements AutoRun {
 
     public boolean run(Account account, boolean forceRun) {
 
-        ServiceTemplate.execute(AccountType.MODULE_CLOUD189, account, serviceTemplateService, new ServiceCallback() {
+        ServiceTemplate.execute(AccountType.MODULE_CLOUD189, account, serviceTemplateService, forceRun, new ServiceCallback() {
             @Override
             public OkHttpClient initOkHttpClient() {
                 return new OkHttpClient.Builder().cookieJar(new CookieJar() {

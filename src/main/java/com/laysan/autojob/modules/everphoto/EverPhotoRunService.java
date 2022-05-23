@@ -48,7 +48,7 @@ public class EverPhotoRunService implements AutoRun {
 
     @Override
     public boolean run(Account account, boolean forceRun) throws Exception {
-        ServiceTemplate.execute(AccountType.MODULE_EVERPHOTO, account, serviceTemplateService, new ServiceCallback() {
+        ServiceTemplate.execute(AccountType.MODULE_EVERPHOTO, account, serviceTemplateService, forceRun, new ServiceCallback() {
 
             @Override
             public OkHttpClient initOkHttpClient() {
