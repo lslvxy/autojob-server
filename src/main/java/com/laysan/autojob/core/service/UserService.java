@@ -2,23 +2,24 @@ package com.laysan.autojob.core.service;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.laysan.autojob.core.entity.Account;
 import com.laysan.autojob.core.entity.User;
+import com.laysan.autojob.core.repository.AccountRepository;
 import com.laysan.autojob.core.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @Service
 public class UserService {
     @Resource
     private UserRepository userRepository;
+    @Resource
+    private AccountRepository accountRepository;
 
     public User findById(Long id) {
         return userRepository.findById(id).orElse(null);
-    }
-
-    public User findByAccessToken(String accessToken) {
-        return userRepository.findByAccessToken(accessToken);
     }
 
     public User findByOpenId(String openId) {
@@ -36,4 +37,18 @@ public class UserService {
 
         return user;
     }
+
+    public void updateTodayRunCount(Long userId) {
+        User user = userRepository.findById(userId).get();
+        user.setTodayRunCount(Math.addExact(user.getTodayRunCount(), 1));
+        userRepository.save(user);
+    }
+
+    public void updateTotalAccountCount(Long userId) {
+        User user = userRepository.findById(userId).get();
+        List<Account> accountList = accountRepository.findByUserId(user.getId());
+        user.setTotalAccountCount(accountList.size());
+        userRepository.save(user);
+    }
+
 }

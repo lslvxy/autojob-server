@@ -7,7 +7,6 @@ import lombok.EqualsAndHashCode;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import java.util.Date;
 
 /**
  * @author lise
@@ -32,22 +31,28 @@ public class User extends BaseEntity {
      */
     private String avatar;
     /**
-     * accessToken
+     * 今日已执行定时任务数量
      */
-    private String accessToken;
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private Integer todayRunCount;
     /**
-     * token 过期时间
+     * 用户总账号数量
      */
-    private Date accessTokenExpire;
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private Integer totalAccountCount;
+
     /**
      * sct.ftqq.com Server酱key
      */
-    private String messageKey;
+    private String sctKey;
+
+
     /**
-     * sct ==> Server酱
-     * pushdeer ==> pushdeer
+     * 今日是否已全部完成
+     *
+     * @return
      */
-    private String messageType;
-
-
+    public boolean todayCompleted() {
+        return todayRunCount.compareTo(totalAccountCount) >= 0;
+    }
 }

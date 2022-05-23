@@ -1,10 +1,8 @@
 package com.laysan.autojob.core.helper;
 
-import com.laysan.autojob.core.entity.TaskLog;
 import okhttp3.OkHttpClient;
 
 public interface ServiceCallback<T> {
-    void checkTodayExecuted();
 
     OkHttpClient initOkHttpClient();
 
@@ -12,7 +10,4 @@ public interface ServiceCallback<T> {
 
     void process();
 
-    void saveTaskLog(TaskLog taskLog);
-
-    void updateAccount();
 }

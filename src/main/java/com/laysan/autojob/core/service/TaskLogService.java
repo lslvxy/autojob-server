@@ -14,12 +14,17 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.List;
 
 @Service
 @Slf4j
 public class TaskLogService {
     @Resource
     TaskLogRepository taskLogRepository;
+
+    public void save(TaskLog taskLog) {
+        taskLogRepository.save(taskLog);
+    }
 
     public void saveSuccessLog(Account account, String message) {
         TaskLog taskLog = new TaskLog();
@@ -48,6 +53,14 @@ public class TaskLogService {
         return taskLogRepository.findAll(ex, pageRequest.withSort(Sort.by(Sort.Direction.DESC, "gmtCreate")));
     }
 
+    public List<TaskLog> finaAllToday(Long userId) {
+        TaskLog probe = new TaskLog(userId);
+        probe.setSucceed(1);
+        probe.setExecutedDay(DateUtil.today());
+        Example<TaskLog> ex = Example.of(probe);
+        return taskLogRepository.findAll(ex);
+    }
+
     public Boolean todayExecuted(Account account) {
         TaskLog probe = new TaskLog(account.getUserId());
         probe.setSucceed(1);
@@ -55,8 +68,6 @@ public class TaskLogService {
         probe.setAccount(account.getAccount());
         probe.setExecutedDay(DateUtil.format(new Date(), DatePattern.NORM_DATE_PATTERN));
         Example<TaskLog> ex = Example.of(probe);
-
-
         return taskLogRepository.exists(ex);
     }
 

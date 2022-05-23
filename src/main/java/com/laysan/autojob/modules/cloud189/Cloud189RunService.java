@@ -7,16 +7,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.laysan.autojob.core.constants.AccountType;
 import com.laysan.autojob.core.entity.Account;
-import com.laysan.autojob.core.entity.TaskLog;
 import com.laysan.autojob.core.helper.AutojobContextHolder;
 import com.laysan.autojob.core.helper.ServiceCallback;
-import com.laysan.autojob.core.helper.ServiceTemplete;
-import com.laysan.autojob.core.repository.AccountRepository;
-import com.laysan.autojob.core.repository.TaskLogRepository;
+import com.laysan.autojob.core.helper.ServiceTemplate;
+import com.laysan.autojob.core.helper.ServiceTemplateService;
 import com.laysan.autojob.core.service.AutoRun;
-import com.laysan.autojob.core.service.MessageService;
-import com.laysan.autojob.core.service.TaskLogService;
-import com.laysan.autojob.core.utils.AESUtil;
 import com.laysan.autojob.core.utils.LogUtils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +45,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -75,17 +69,7 @@ public class Cloud189RunService implements AutoRun {
     String url2 = "https://m.cloud.189.cn/v2/drawPrizeMarketDetails.action?taskId=TASK_SIGNIN_PHOTOS&activityId=ACT_SIGNIN";
     String url = "https://m.cloud.189.cn/v2/drawPrizeMarketDetails.action?taskId=TASK_SIGNIN&activityId=ACT_SIGNIN";
     @Autowired
-    private TaskLogRepository taskLogRepository;
-    @Autowired
-    private TaskLogService taskLogService;
-    @Autowired
-    private AccountRepository accountRepository;
-    @Autowired
-    private MessageService messageService;
-    @Autowired
-    private AESUtil aesUtil;
-
-    Map<String, List<Cookie>> cookies = new ConcurrentHashMap<>();
+    private ServiceTemplateService serviceTemplateService;
 
     @Override
     @PostConstruct
@@ -96,16 +80,7 @@ public class Cloud189RunService implements AutoRun {
 
     public boolean run(Account account, boolean forceRun) {
 
-        ServiceTemplete.execute(AccountType.MODULE_CLOUD189, account, new ServiceCallback() {
-            @Override
-            public void checkTodayExecuted() {
-                if (!forceRun) {
-                    if (Boolean.TRUE.equals(taskLogService.todayExecuted(account))) {
-                        throw new BizException("今日已执行!");
-                    }
-                }
-            }
-
+        ServiceTemplate.execute(AccountType.MODULE_CLOUD189, account, serviceTemplateService, new ServiceCallback() {
             @Override
             public OkHttpClient initOkHttpClient() {
                 return new OkHttpClient.Builder().cookieJar(new CookieJar() {
@@ -139,13 +114,13 @@ public class Cloud189RunService implements AutoRun {
             public void prepare() {
                 boolean loginSuccess = true;
                 if (StrUtil.isBlank(account.getExtendInfo())) {
-                    loginSuccess = login(account.getAccount(), account.getPassword());
+                    loginSuccess = login(account.getAccount(), AutojobContextHolder.get().getDecryptPassword());
                 }
                 try {
                     Cloud189CheckInResult cloud189CheckInResult = checkIn(account);
                     AutojobContextHolder.get().setCheckInSuccess(!cloud189CheckInResult.isError());
                 } catch (Exception e) {
-                    loginSuccess = login(account.getAccount(), account.getPassword());
+                    loginSuccess = login(account.getAccount(), AutojobContextHolder.get().getDecryptPassword());
                 }
                 if (!loginSuccess) {
                     throw new BizException("登录失败");
@@ -161,16 +136,6 @@ public class Cloud189RunService implements AutoRun {
                 lottery(url2);
             }
 
-            @Override
-            public void saveTaskLog(TaskLog taskLog) {
-                taskLog.setDetail(AutojobContextHolder.get().getDetailMessage());
-                taskLogRepository.save(taskLog);
-            }
-
-            @Override
-            public void updateAccount() {
-                accountRepository.save(account);
-            }
         });
 
         return true;
@@ -244,7 +209,6 @@ public class Cloud189RunService implements AutoRun {
 
     @SneakyThrows
     private Boolean login(String username, String password) {
-        password = aesUtil.decrypt(password);
         Map<String, String> prepareMap = beforeLogin();
         String encryptUsername = encrypt(username, prepareMap.get("rsaKey"));
         String encryptPassword = encrypt(password, prepareMap.get("rsaKey"));
@@ -312,7 +276,13 @@ public class Cloud189RunService implements AutoRun {
             throw new BizException("抽奖失败");
         }
         if (StrUtil.isNotBlank(jsonObject.getPrizeName())) {
-            AutojobContextHolder.get().appendMessage("抽奖获得" + jsonObject.getPrizeName());
+            String detailMessage = AutojobContextHolder.get().getDetailMessage();
+            if (detailMessage.contains(jsonObject.getPrizeName())) {
+                AutojobContextHolder.get().appendMessage(jsonObject.getPrizeName());
+            } else {
+                AutojobContextHolder.get().appendMessage("抽奖获得" + jsonObject.getPrizeName());
+            }
+
             LogUtils.info(log, AccountType.MODULE_CLOUD189, AutojobContextHolder.get().getAccount(), jsonObject.getPrizeName());
         }
         IoUtil.close(response);

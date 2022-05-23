@@ -1,12 +1,12 @@
 package com.laysan.autojob.core.service;
 
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.text.StrJoiner;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
+import com.laysan.autojob.core.entity.TaskLog;
 import com.laysan.autojob.core.entity.User;
-import com.laysan.autojob.core.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.FormBody;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -26,25 +27,30 @@ import java.util.Objects;
 @Slf4j
 public class MessageService {
     @Resource
-    UserRepository userRepository;
+    UserService userService;
+    @Resource
+    TaskLogService taskLogService;
 
-    public void sendMessage(String openId, String title, String detail) {
-        User user = userRepository.findByOpenId(openId);
-        if (Objects.isNull(user) || StrUtil.isBlank(user.getMessageKey())) {
+    public void sendMessage(Long userId) {
+
+        //public void sendMessage(String openId, String title, String detail) {
+        User user = userService.findById(userId);
+        if (Objects.isNull(user) || StrUtil.isBlank(user.getSctKey())) {
             return;
         }
-        String messageType = user.getMessageType();
-        if (StrUtil.isBlank(messageType)) {
-            messageType = "sct";
+        if (!user.todayCompleted()) {
+            log.info("用户所有任务全部完成后再发送消息，今日已执行:{},任务总数:{}", user.getTodayRunCount(), user.getTotalAccountCount());
+            return;
         }
-        switch (messageType) {
-            case "pushdeer":
-                sendPushdeer(user.getMessageKey(), title, detail);
-                break;
-            default:
-                sendSct(user.getMessageKey(), title, detail);
-                break;
-        }
+        String title = StrUtil.format("[AutoJob]{}执行结果", DateUtil.today());
+        List<TaskLog> taskLogs = taskLogService.finaAllToday(userId);
+        StrJoiner joiner = new StrJoiner("\n\n");
+        taskLogs.forEach(v -> {
+            String detail = v.getDetail();
+            String type = v.getTypeName();
+            joiner.append(type + "：" + detail);
+        });
+        sendSct(user.getSctKey(), title, joiner.toString());
     }
 
     private void sendSct(String sendKey, String title, String detail) {
@@ -59,27 +65,6 @@ public class MessageService {
         } catch (IOException e) {
             log.error("发送消息失败");
         }
-    }
-
-    public static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
-
-    private void sendPushdeer(String pushkey, String text, String desp) {
-        OkHttpClient client = new OkHttpClient.Builder().build();
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("pushkey", pushkey);
-        jsonObject.put("text", text);
-        jsonObject.put("desp", desp);
-        String json = jsonObject.toJSONString();
-        RequestBody body = RequestBody.create(json, JSON);
-        Request request = new Request.Builder().url("https://api2.pushdeer.com/message/push").post(body).build();
-        try {
-            Response execute = client.newCall(request).execute();
-            String string = execute.body().string();
-            log.info(string);
-        } catch (IOException e) {
-            log.error("发送消息失败");
-        }
-
     }
 
 

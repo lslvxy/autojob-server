@@ -17,6 +17,8 @@ public class AccountService {
     @Resource
     AccountRepository accountRepository;
     @Resource
+    UserService userService;
+    @Resource
     AESUtil aesUtil;
 
     public Account findById(Long id) {
@@ -46,12 +48,20 @@ public class AccountService {
         return accountRepository.exists(ex);
     }
 
-    public Account save(Account account) {
+    public Account saveWithEncrypt(Account account) {
         account.setPassword(aesUtil.encrypt(account.getPassword()));
         return accountRepository.save(account);
     }
 
+    public Account save(Account account) {
+        Account save = accountRepository.save(account);
+        userService.updateTotalAccountCount(account.getUserId());
+        return save;
+    }
+
     public void deleteById(Long id) {
-        accountRepository.deleteById(id);
+        Account account = accountRepository.findById(id).get();
+        accountRepository.delete(account);
+        userService.updateTotalAccountCount(account.getUserId());
     }
 }

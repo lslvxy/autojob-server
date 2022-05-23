@@ -71,6 +71,8 @@ public class Account extends BaseEntity {
     @JsonIgnore
     @Column(columnDefinition = "text")
     private String extendInfo;
+    
+    private Boolean todayExecuted;
 
     public Account(Long userId) {
         this.setUserId(userId);
@@ -122,4 +124,6 @@ public class Account extends BaseEntity {
     public void saveExtendInfo(JSONObject jsonObject) {
         this.setExtendInfo(jsonObject.toJSONString());
     }
+
+
 }

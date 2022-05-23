@@ -9,16 +9,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.laysan.autojob.core.constants.AccountType;
 import com.laysan.autojob.core.entity.Account;
-import com.laysan.autojob.core.entity.TaskLog;
 import com.laysan.autojob.core.helper.AutojobContextHolder;
 import com.laysan.autojob.core.helper.ServiceCallback;
-import com.laysan.autojob.core.helper.ServiceTemplete;
-import com.laysan.autojob.core.repository.AccountRepository;
-import com.laysan.autojob.core.repository.TaskLogRepository;
+import com.laysan.autojob.core.helper.ServiceTemplate;
+import com.laysan.autojob.core.helper.ServiceTemplateService;
 import com.laysan.autojob.core.service.AutoRun;
-import com.laysan.autojob.core.service.MessageService;
-import com.laysan.autojob.core.service.TaskLogService;
-import com.laysan.autojob.core.utils.AESUtil;
 import com.laysan.autojob.core.utils.LogUtils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -42,15 +37,7 @@ import java.util.zip.GZIPInputStream;
 @Slf4j
 public class EverPhotoRunService implements AutoRun {
     @Autowired
-    TaskLogService taskLogService;
-    @Autowired
-    private MessageService messageService;
-    @Autowired
-    private AESUtil aesUtil;
-    @Autowired
-    private AccountRepository accountRepository;
-    @Autowired
-    private TaskLogRepository taskLogRepository;
+    private ServiceTemplateService serviceTemplateService;
 
 
     @Override
@@ -61,16 +48,7 @@ public class EverPhotoRunService implements AutoRun {
 
     @Override
     public boolean run(Account account, boolean forceRun) throws Exception {
-        ServiceTemplete.execute(AccountType.MODULE_EVERPHOTO, account, new ServiceCallback() {
-
-            @Override
-            public void checkTodayExecuted() {
-                if (!forceRun) {
-                    if (Boolean.TRUE.equals(taskLogService.todayExecuted(account))) {
-                        throw new BizException("今日已执行!");
-                    }
-                }
-            }
+        ServiceTemplate.execute(AccountType.MODULE_EVERPHOTO, account, serviceTemplateService, new ServiceCallback() {
 
             @Override
             public OkHttpClient initOkHttpClient() {
@@ -99,17 +77,6 @@ public class EverPhotoRunService implements AutoRun {
                     account.setExtendInfo(loginResult.getToken());
                     checkIn(account, loginResult.getToken());
                 }
-            }
-
-            @Override
-            public void saveTaskLog(TaskLog taskLog) {
-                taskLog.setDetail(AutojobContextHolder.get().getDetailMessage());
-                taskLogRepository.save(taskLog);
-            }
-
-            @Override
-            public void updateAccount() {
-                accountRepository.save(account);
             }
         });
         return true;
@@ -151,8 +118,7 @@ public class EverPhotoRunService implements AutoRun {
 
     @SneakyThrows
     private EverPhotoLoginResult login(Account account) {
-        String originalPassword = aesUtil.decrypt(account.getPassword());
-        String password = DigestUtils.md5DigestAsHex(("tc.everphoto." + originalPassword).getBytes());
+        String password = DigestUtils.md5DigestAsHex(("tc.everphoto." + AutojobContextHolder.get().getDecryptPassword()).getBytes());
         String phone = account.getAccount();
 
         RequestBody body = new FormBody.Builder().add("mobile", phone).add("password", password).build();

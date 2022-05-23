@@ -10,6 +10,7 @@ public class AutojobContext {
     private String account;
     private OkHttpClient client;
     private Boolean checkInSuccess;
+    private String decryptPassword;
 
 
     public void appendMessage(String message) {
@@ -19,5 +20,9 @@ public class AutojobContext {
         if (!StrUtil.contains(detailMessage, message)) {
             detailMessage += ", " + message;
         }
+    }
+
+    public void replaceMessage(String oldMessage, String message) {
+        detailMessage = StrUtil.replace(detailMessage, oldMessage, message);
     }
 }

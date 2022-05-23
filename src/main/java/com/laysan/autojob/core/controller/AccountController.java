@@ -69,7 +69,7 @@ public class AccountController extends BaseController {
         if (account.getTime().length() > 5) {
             account.setTime(CharSequenceUtil.subBefore(account.getTime(), ":", true));
         }
-        QuartzUtils.createScheduleJob(scheduler, accountService.save(account));
+        QuartzUtils.createScheduleJob(scheduler, accountService.saveWithEncrypt(account));
         return PageResponse.buildSuccess();
     }
 
@@ -93,7 +93,7 @@ public class AccountController extends BaseController {
         Account formDb = accountService.findById(account.getId());
         Assert.isTrue(formDb.getUserId().equals(getLoginUserId(request)), "没有权限");
         formDb.setTime(account.getTime());
-        accountService.save(formDb);
+        accountService.saveWithEncrypt(formDb);
         return PageResponse.buildSuccess();
     }
 

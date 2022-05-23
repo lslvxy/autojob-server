@@ -22,6 +22,8 @@ public class BaseController {
         if (Objects.isNull(user)) {
             user = new User();
             user.setOpenId(openId);
+            user.setTotalAccountCount(0);
+            user.setTodayRunCount(0);
             user = userService.save(user);
         }
         return user.getId();

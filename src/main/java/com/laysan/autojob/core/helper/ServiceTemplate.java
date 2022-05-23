@@ -1,6 +1,5 @@
 package com.laysan.autojob.core.helper;
 
-import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import com.alibaba.cola.exception.BizException;
 import com.laysan.autojob.core.constants.AccountType;
@@ -10,22 +9,25 @@ import com.laysan.autojob.core.utils.LogUtils;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 
-import java.util.Date;
-
 @Slf4j
-public class ServiceTemplete {
-    public static void execute(AccountType accountType, Account account, ServiceCallback callback) {
+public class ServiceTemplate {
+    public static void execute(AccountType accountType, Account account, ServiceTemplateService serviceTemplateService, ServiceCallback callback) {
         TaskLog taskLog = new TaskLog();
         long start = System.currentTimeMillis();
         try {
             AutojobContextHolder.init();
-            callback.checkTodayExecuted();
+            if (Boolean.TRUE.equals(account.getTodayExecuted())) {
+                throw new BizException("todayExecuted");
+            }
+            String decryptPassword = serviceTemplateService.decryptPassword(account.getPassword());
+            AutojobContextHolder.get().setDecryptPassword(decryptPassword);
             OkHttpClient client = callback.initOkHttpClient();
             AutojobContextHolder.get().setClient(client);
             AutojobContextHolder.get().setAccount(account.getAccount());
             callback.prepare();
             callback.process();
-            callback.updateAccount();
+            account.setTodayExecuted(true);
+            serviceTemplateService.updateAccount(account);
             taskLog.setSucceed(1);
         } catch (BizException e) {
             AutojobContextHolder.get().setDetailMessage(e.getMessage());
@@ -43,10 +45,14 @@ public class ServiceTemplete {
             taskLog.setAccount(account.getAccount());
             taskLog.setAccountId(account.getId());
             taskLog.setTimeCosted(time);
-            taskLog.setExecutedDay(DateUtil.format(new Date(), DatePattern.NORM_DATE_PATTERN));
-
+            taskLog.setExecutedDay(DateUtil.today());
             taskLog.setDetail(AutojobContextHolder.get().getDetailMessage());
-            callback.saveTaskLog(taskLog);
+
+            if (!taskLog.getDetail().equals("todayExecuted")) {
+                serviceTemplateService.saveTaskLog(taskLog);
+                serviceTemplateService.updateTodayRunCount(account.getUserId());
+                serviceTemplateService.sendNotifyMsg(account.getUserId());
+            }
             AutojobContextHolder.clear();
         }
     }
