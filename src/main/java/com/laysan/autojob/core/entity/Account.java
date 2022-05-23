@@ -42,6 +42,7 @@ public class Account extends BaseEntity {
     /**
      * 密码
      */
+    //@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     /**
      * 类型 @see ModuleTypes

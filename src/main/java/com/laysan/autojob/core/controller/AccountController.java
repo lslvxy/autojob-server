@@ -1,9 +1,11 @@
 package com.laysan.autojob.core.controller;
 
 import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.NumberUtil;
 import com.alibaba.cola.dto.MultiResponse;
 import com.alibaba.cola.dto.PageResponse;
 import com.alibaba.cola.dto.Response;
+import com.alibaba.cola.dto.SingleResponse;
 import com.alibaba.cola.exception.Assert;
 import com.laysan.autojob.core.constants.AccountType;
 import com.laysan.autojob.core.dto.AccountDTO;
@@ -52,10 +54,20 @@ public class AccountController extends BaseController {
         return PageResponse.of(accountPage.getContent(), Math.toIntExact(accountPage.getTotalElements()), pageSize, current);
     }
 
+    @GetMapping("/account/{id}")
+    public SingleResponse<Account> getAccountDetail(@PathVariable("id") Long id, HttpServletRequest request) {
+        Long loginUserId = getLoginUserId(request);
+        Account account = accountService.findById(id);
+        if (!NumberUtil.equals(account.getUserId(), loginUserId)) {
+            Response.buildFailure("500", "您无权操作");
+        }
+        account.setPassword("******");
+        return SingleResponse.of(account);
+    }
+
     @PostMapping("/account")
     public Response save(@RequestBody Account account, HttpServletRequest request) throws Exception {
         Long userId = getLoginUserId(request);
-        String typeDesc = AccountType.get(account.getType()).getDesc();
         long accountCountByType = accountService.findAccountCountByType(userId, account.getType());
         if (accountCountByType >= 3) {
             return PageResponse.buildFailure("500", "数量限制[3]个");
