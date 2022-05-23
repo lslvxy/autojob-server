@@ -15,11 +15,13 @@ public class ServiceTemplate {
     public static void execute(AccountType accountType, Account account, ServiceTemplateService serviceTemplateService, boolean forceRun, ServiceCallback callback) {
         TaskLog taskLog = new TaskLog();
         long start = System.currentTimeMillis();
+        boolean todayExecuted = false;
         try {
             AutojobContextHolder.init();
             if (!forceRun) {
                 if (NumberUtil.equals(1, account.getTodayExecuted())) {
-                    throw new BizException("todayExecuted");
+                    todayExecuted = true;
+                    return;
                 }
             }
 
@@ -52,9 +54,9 @@ public class ServiceTemplate {
             taskLog.setTimeCosted(time);
             taskLog.setExecutedDay(DateUtil.today());
             taskLog.setDetail(AutojobContextHolder.get().getDetailMessage());
-            serviceTemplateService.updateAccount(account);
 
-            if (!taskLog.getDetail().equals("todayExecuted")) {
+            if (!todayExecuted) {
+                serviceTemplateService.updateAccount(account);
                 serviceTemplateService.saveTaskLog(taskLog);
                 serviceTemplateService.updateTodayRunCount(account.getUserId());
                 serviceTemplateService.sendNotifyMsg(account.getUserId());

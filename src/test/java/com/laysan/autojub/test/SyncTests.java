@@ -27,7 +27,7 @@ class SyncTests {
     @Test
     void comm() throws Exception {
         //messageService.sendMessage("111111", "xxx", "ooo");
-        //System.out.println(aesUtil.encrypt("123456"));
+        System.out.println(aesUtil.decrypt("XBbmxoCDlA5sxMXhPmw1Fg=="));
 //        Account account = accountService.findById(1L);
 //        cloud189RunService.run(account, false);
 

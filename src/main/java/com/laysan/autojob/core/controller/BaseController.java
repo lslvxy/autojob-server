@@ -33,6 +33,7 @@ public class BaseController {
         return PageRequest.of(page - 1, pageSize);
     }
 
+
     protected PageRequest getPageRequest(int page) {
         return PageRequest.of(page - 1, PAGE_SIZE);
     }

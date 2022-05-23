@@ -31,7 +31,7 @@ public class AccountService {
 
     public Page<Account> findAccountPage(Long userId, PageRequest pageRequest) {
         Example<Account> ex = Example.of(new Account(userId));
-        Page<Account> all = accountRepository.findAll(ex, pageRequest.withSort(Sort.by(Sort.Direction.DESC, "type")));
+        Page<Account> all = accountRepository.findAll(ex, pageRequest.withSort(Sort.by(Sort.Direction.ASC, "type", "todayExecuted")));
         all.getContent().forEach(account -> account.setPassword("******"));
         return all;
     }
