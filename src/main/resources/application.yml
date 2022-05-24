@@ -8,13 +8,16 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-      minimum-idle: 10
-      maximum-pool-size: 25
-      auto-commit: true
-      idle-timeout: 30000
-      pool-name: HikariCP
+      connection-timeout: 10000
+      validation-timeout: 3000
+      idle-timeout: 60000
+      login-timeout: 5
       max-lifetime: 60000
-      connection-timeout: 30000
+      maximum-pool-size: 10
+      minimum-idle: 5
+      read-only: false
+      auto-commit: true
+      pool-name: HikariCP
       connection-test-query: select 1
   jpa:
     hibernate:
