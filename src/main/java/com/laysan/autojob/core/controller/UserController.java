@@ -1,16 +1,18 @@
 package com.laysan.autojob.core.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.dto.MultiResponse;
+import com.alibaba.cola.dto.Response;
 import com.alibaba.cola.dto.SingleResponse;
 import com.laysan.autojob.core.constants.AccountType;
 import com.laysan.autojob.core.dto.TypeDTO;
 import com.laysan.autojob.core.entity.User;
-import com.laysan.autojob.core.service.UserService;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Arrays;
 import java.util.List;
@@ -19,8 +21,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("user")
 public class UserController extends BaseController {
-    @Resource
-    private UserService userService;
 
     @GetMapping("menu")
     public MultiResponse<TypeDTO> menu(HttpServletRequest request) {
@@ -29,10 +29,21 @@ public class UserController extends BaseController {
         return MultiResponse.of(list);
     }
 
-    @GetMapping("info")
+    @GetMapping("me")
     public SingleResponse<User> info(HttpServletRequest request) {
-        Long userId = getLoginUserId(request);
-        return SingleResponse.of(userService.findById(userId));
+        User userId = getLoginUser(request);
+        return SingleResponse.of((userId));
     }
 
+    @PostMapping("me")
+    public Response save(@RequestBody User user, HttpServletRequest request) {
+        User userDb = getLoginUser(request);
+        if (StrUtil.isBlank(user.getSctKey())) {
+            userDb.setSctKey(null);
+        } else {
+            userDb.setSctKey(user.getSctKey());
+        }
+        userService.save(userDb);
+        return Response.buildSuccess();
+    }
 }

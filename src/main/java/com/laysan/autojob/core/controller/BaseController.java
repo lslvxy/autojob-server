@@ -13,7 +13,7 @@ import java.util.Objects;
 public class BaseController {
     protected static final int PAGE_SIZE = 20;
     @Resource
-    private UserService userService;
+    protected UserService userService;
 
 
     protected Long getLoginUserId(HttpServletRequest request) {
@@ -27,6 +27,15 @@ public class BaseController {
             user = userService.save(user);
         }
         return user.getId();
+    }
+
+    protected User getLoginUser(HttpServletRequest request) {
+        String openId = request.getHeader("token");
+        return userService.findByOpenId(openId);
+    }
+
+    protected String getOpenId(HttpServletRequest request) {
+        return request.getHeader("token");
     }
 
     protected PageRequest getPageRequest(int page, int pageSize) {
