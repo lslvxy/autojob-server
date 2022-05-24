@@ -7,18 +7,18 @@ spring:
     active: dev
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    hikari:
-      connection-timeout: 10000
-      validation-timeout: 3000
-      idle-timeout: 60000
-      login-timeout: 5
-      max-lifetime: 60000
-      maximum-pool-size: 10
-      minimum-idle: 5
-      read-only: false
-      auto-commit: true
-      pool-name: HikariCP
-      connection-test-query: select 1
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      maxActive: 20
+      initialSize: 1
+      minIdle: 3
+      maxWait: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      validationQuery: SELECT 1
   jpa:
     hibernate:
       ddl-auto: update
@@ -71,7 +71,9 @@ server:
   port: 8080
 
 autojob:
-  aes_key: ${AUTOJOB_ENCRYPT_KEY}
+  rsa:
+    public_key: ${AUTOJOB_RSA_PUBLIC_KEY}
+    private_key: ${AUTOJOB_RSA_PRIVATE_KEY}
 
 ok:
   http:

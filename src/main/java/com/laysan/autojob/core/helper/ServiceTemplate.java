@@ -41,7 +41,7 @@ public class ServiceTemplate {
             taskLog.setSucceed(0);
         } catch (Exception e) {
             AutojobContextHolder.get().setDetailMessage("定时任务执行失败");
-            LogUtils.error(log, accountType, account.getAccount(), "定时任务执行失败");
+            LogUtils.error(log, accountType, account.getAccount(), "定时任务执行失败,{}", e);
             account.setTodayExecuted(0);
             taskLog.setSucceed(0);
         } finally {

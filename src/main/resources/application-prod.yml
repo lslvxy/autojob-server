@@ -1,7 +1,7 @@
 spring:
   datasource:
-    url: jdbc:mysql://rm-uf6f7nf8y9vih1oqk125010.mysql.rds.aliyuncs.com:3306/autojob?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
-    username: lise
-    password: lise@1234
+    url: jdbc:mysql://127.0.0.1:30236/autojob?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
   jpa:
     show-sql: true
