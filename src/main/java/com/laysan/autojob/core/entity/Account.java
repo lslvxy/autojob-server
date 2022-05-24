@@ -28,9 +28,9 @@ import java.util.Date;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@Table
 @NoArgsConstructor
 @Accessors(chain = true)
+@Table(name = "autojob_account")
 public class Account extends BaseEntity {
     @Column(nullable = false)
     private Long userId;

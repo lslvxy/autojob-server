@@ -1,12 +1,12 @@
 spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
   # DATABASE CONFIG
+  profiles:
+    active: dev
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/autojob?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
-    username: root
-    password: 123456
     hikari:
       minimum-idle: 10
       maximum-pool-size: 25
@@ -16,9 +16,7 @@ spring:
       max-lifetime: 60000
       connection-timeout: 30000
       connection-test-query: select 1
-    initialization-mode: always
   jpa:
-    show-sql: true
     hibernate:
       ddl-auto: update
     generate-ddl: true
@@ -39,6 +37,32 @@ spring:
     jdbc:
       platform: mysql
       initialize-schema: ALWAYS
+#    properties:
+#      org:
+#        quartz:
+#          jobStore:
+#            d
+#            #持久化方式配置
+#            class: org.quartz.impl.jdbcjobstore.JobStoreTX
+#            #持久化方式配置数据驱动，MySQL数据库
+#            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+#            #quartz相关数据表前缀名
+#            tablePrefix: QRTZ_
+#            #开启分布式部署
+#            isClustered: false
+#            #分布式节点有效性检查时间间隔，单位：毫秒
+#            clusterCheckinInterval: 10000
+#            #配置是否使用
+#            useProperties: false
+#          threadPool:
+#            #线程池实现类
+#            class: org.quartz.simpl.SimpleThreadPool
+#            #执行最大并发线程数量
+#            threadCount: 10
+#            #线程优先级
+#            threadPriority: 5
+#            #配置是否启动自动加载数据库内的定时任务，默认true
+#            threadsInheritContextClassLoaderOfInitializingThread: true
 
 server:
   port: 8080

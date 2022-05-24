@@ -16,8 +16,8 @@ import java.util.Objects;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Entity
-@Table
 @NoArgsConstructor
+@Table(name = "autojob_log")
 public class TaskLog extends BaseEntity {
     private Long userId;
     private Long accountId;
