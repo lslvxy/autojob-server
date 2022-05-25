@@ -21,13 +21,17 @@ public class AESUtil {
     private String publicKeyBase64 = "";
     @Value("${autojob.rsa.private_key}")
     private String privateKeyBase64 = "";
+    @Value("${autojob.password.encrypt}")
+    private boolean doEncrypt;
     private RSA rsa;
 
     @PostConstruct
     public void init() {
-        byte[] publicKey = Base64.decode(publicKeyBase64);
-        byte[] privateKey = Base64.decode(privateKeyBase64);
-        rsa = SecureUtil.rsa(privateKey, publicKey);
+        if (this.doEncrypt) {
+            byte[] publicKey = Base64.decode(publicKeyBase64);
+            byte[] privateKey = Base64.decode(privateKeyBase64);
+            rsa = SecureUtil.rsa(privateKey, publicKey);
+        }
     }
 
     /**
@@ -38,6 +42,9 @@ public class AESUtil {
      */
     public String encrypt(String message) {
         try {
+            if (!this.doEncrypt) {
+                return message;
+            }
             return rsa.encryptBase64(message, KeyType.PublicKey);
         } catch (Exception e) {
             return null;
@@ -51,6 +58,9 @@ public class AESUtil {
      */
     public String decrypt(String encrypted) {
         try {
+            if (!this.doEncrypt) {
+                return encrypted;
+            }
             return rsa.decryptStr(encrypted, KeyType.PrivateKey);
         } catch (Exception e) {
             return null;

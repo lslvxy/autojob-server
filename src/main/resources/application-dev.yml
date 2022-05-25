@@ -3,5 +3,10 @@ spring:
     url: jdbc:mysql://127.0.0.1:51306/autojob?characterEncoding=utf-8&allowMultiQueries=true&&useAffectedRows=true&useSSL=false
     username: root
     password: ${AUTOJOB_MYSQL_PASSWORD}
-  jpa:
-    show-sql: true
+    
+autojob:
+  password:
+    encrypt: true #是否开启加密
+  rsa:
+    public_key: ${AUTOJOB_RSA_PUBLIC_KEY}
+    private_key: ${AUTOJOB_RSA_PRIVATE_KEY}
