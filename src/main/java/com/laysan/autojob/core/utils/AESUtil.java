@@ -27,7 +27,7 @@ public class AESUtil {
     private RSA rsa;
 
     private boolean doEncrypt() {
-        return StrUtil.isBlank(doEncrypt) || StrUtil.equals("true", this.doEncrypt);
+        return StrUtil.isBlank(this.doEncrypt.trim()) || StrUtil.equals("true", this.doEncrypt.trim());
     }
 
     @PostConstruct
