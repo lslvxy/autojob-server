@@ -1,6 +1,7 @@
 package com.laysan.autojob.core.utils;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.RSA;
@@ -21,13 +22,17 @@ public class AESUtil {
     private String publicKeyBase64 = "";
     @Value("${autojob.rsa.private_key}")
     private String privateKeyBase64 = "";
-    @Value("#{new Boolean('${autojob.password.encrypt}')}")
-    private Boolean doEncrypt;
+    @Value("${autojob.password.encrypt}")
+    private String doEncrypt;
     private RSA rsa;
+
+    private boolean doEncrypt() {
+        return StrUtil.isBlank(doEncrypt) || StrUtil.equals("true", this.doEncrypt);
+    }
 
     @PostConstruct
     public void init() {
-        if (Boolean.TRUE.equals(this.doEncrypt)) {
+        if (doEncrypt()) {
             byte[] publicKey = Base64.decode(publicKeyBase64);
             byte[] privateKey = Base64.decode(privateKeyBase64);
             rsa = SecureUtil.rsa(privateKey, publicKey);
@@ -42,7 +47,7 @@ public class AESUtil {
      */
     public String encrypt(String message) {
         try {
-            if (!Boolean.TRUE.equals(this.doEncrypt)) {
+            if (!doEncrypt()) {
                 return message;
             }
             return rsa.encryptBase64(message, KeyType.PublicKey);
@@ -58,7 +63,7 @@ public class AESUtil {
      */
     public String decrypt(String encrypted) {
         try {
-            if (!Boolean.TRUE.equals(this.doEncrypt)) {
+            if (!doEncrypt()) {
                 return encrypted;
             }
             return rsa.decryptStr(encrypted, KeyType.PrivateKey);
