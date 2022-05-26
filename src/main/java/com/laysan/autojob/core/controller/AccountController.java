@@ -9,6 +9,7 @@ import com.alibaba.cola.dto.PageResponse;
 import com.alibaba.cola.dto.Response;
 import com.alibaba.cola.dto.SingleResponse;
 import com.alibaba.cola.exception.Assert;
+import com.alibaba.fastjson.JSON;
 import com.laysan.autojob.core.constants.AccountType;
 import com.laysan.autojob.core.dto.AccountDTO;
 import com.laysan.autojob.core.entity.Account;
@@ -16,6 +17,7 @@ import com.laysan.autojob.core.repository.AccountRepository;
 import com.laysan.autojob.core.service.AccountService;
 import com.laysan.autojob.core.service.AutoRunService;
 import com.laysan.autojob.core.utils.QuartzUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.quartz.Scheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -39,6 +41,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @RestController
+@Slf4j
 public class AccountController extends BaseController {
 
     @Autowired
@@ -69,6 +72,7 @@ public class AccountController extends BaseController {
 
     @PostMapping("/account")
     public Response save(@RequestBody Account account, HttpServletRequest request) throws Exception {
+        log.info("account:{}", JSON.toJSONString(account));
         Long userId = getLoginUserId(request);
         long accountCountByType = accountService.findAccountCountByType(userId, account.getType());
         if (accountCountByType >= 3) {
@@ -87,7 +91,7 @@ public class AccountController extends BaseController {
             accountDb.setTime(account.getTime());
             accountDb.setAccount(account.getAccount());
             if (!StrUtil.equals("******", account.getPassword())) {
-                accountDb.setPassword(account.getPassword());
+                accountDb.setPassword(aesUtil.encrypt(account.getPassword()));
             }
             accountService.save(accountDb);
             QuartzUtils.updateScheduleJob(scheduler, accountDb);

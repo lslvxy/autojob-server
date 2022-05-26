@@ -2,6 +2,7 @@ package com.laysan.autojob.core.controller;
 
 import com.laysan.autojob.core.entity.User;
 import com.laysan.autojob.core.service.UserService;
+import com.laysan.autojob.core.utils.AESUtil;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,6 +15,8 @@ public class BaseController {
     protected static final int PAGE_SIZE = 20;
     @Resource
     protected UserService userService;
+    @Resource
+    protected AESUtil aesUtil;
 
 
     protected Long getLoginUserId(HttpServletRequest request) {

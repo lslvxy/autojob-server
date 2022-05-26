@@ -56,14 +56,14 @@ public class SystemController {
         cloud189.setIcon("https://cloud.189.cn/logo.ico");
         result.add(cloud189);
         TypeDTO yun139 = new TypeDTO();
-        yun139.setType(AccountType.MODULE_YOUDAO.getCode());
+        //yun139.setType(AccountType.MODULE_YOUDAO.getCode());
         yun139.setName("有道云");
         yun139.setIcon("https://th.bing.com/th/id/R42ec07afd649805d38ffb2ee84e826c8?rik=FjxbOtyizIGk5Q&riu=http%3a%2f%2fis5.mzstatic.com%2fimage%2fthumb%2fPurple118%2fv4%2f97%2f83%2f7c%2f97837c6f-284f-7435-241c-6dafb8132157%2fsource%2f512x512bb.png&ehk=3OE2Kpd1dBGgqjk1BitkrOMni2HqdlE6kglsDGoEw78%3d&risl=&pid=ImgRaw");
 //        yun139.setStatus("开发中");
         result.add(yun139);
 
         TypeDTO wps = new TypeDTO();
-        wps.setType(AccountType.MODULE_WPS.getCode());
+        //wps.setType(AccountType.MODULE_WPS.getCode());
         wps.setName("WPS");
         wps.setIcon("https://tse3-mm.cn.bing.net/th/id/OIP.f8WmQ2SL6FirjzcebPVL5AHaHa?pid=ImgDet&rs=1");
         //        wps.setStatus("开发中");
