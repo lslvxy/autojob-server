@@ -21,13 +21,13 @@ public class AESUtil {
     private String publicKeyBase64 = "";
     @Value("${autojob.rsa.private_key}")
     private String privateKeyBase64 = "";
-    @Value("${autojob.password.encrypt}")
-    private boolean doEncrypt;
+    @Value("#{new Boolean('${autojob.password.encrypt}')}")
+    private Boolean doEncrypt;
     private RSA rsa;
 
     @PostConstruct
     public void init() {
-        if (this.doEncrypt) {
+        if (Boolean.TRUE.equals(this.doEncrypt)) {
             byte[] publicKey = Base64.decode(publicKeyBase64);
             byte[] privateKey = Base64.decode(privateKeyBase64);
             rsa = SecureUtil.rsa(privateKey, publicKey);
@@ -42,7 +42,7 @@ public class AESUtil {
      */
     public String encrypt(String message) {
         try {
-            if (!this.doEncrypt) {
+            if (!Boolean.TRUE.equals(this.doEncrypt)) {
                 return message;
             }
             return rsa.encryptBase64(message, KeyType.PublicKey);
@@ -58,7 +58,7 @@ public class AESUtil {
      */
     public String decrypt(String encrypted) {
         try {
-            if (!this.doEncrypt) {
+            if (!Boolean.TRUE.equals(this.doEncrypt)) {
                 return encrypted;
             }
             return rsa.decryptStr(encrypted, KeyType.PrivateKey);

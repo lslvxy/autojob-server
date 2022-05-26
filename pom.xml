@@ -142,6 +142,22 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>0.39.1</version>
+                <configuration>
+                    <images>
+                        <image>
+                            <name>laysan/autojob:1.0.0</name>
+                            <alias>dockerfile</alias>
+                            <build>
+                                <dockerFile>${project.basedir}/Dockerfile</dockerFile>
+                            </build>
+                        </image>
+                    </images>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
