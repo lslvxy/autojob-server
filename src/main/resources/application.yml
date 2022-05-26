@@ -11,7 +11,7 @@ spring:
   quartz:
     job-store-type: jdbc
     jdbc:
-      platform: mysql
+      platform: ${AUTOJOB_DB_TYPE}
       initialize-schema: ALWAYS
 
 autojob:

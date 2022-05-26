@@ -3,8 +3,6 @@ spring:
     init:
       platform: mysql
   datasource:
-
-    #    url: jdbc:mysql://127.0.0.1:51306/autojob?characterEncoding=utf-8&allowMultiQueries=true&&useAffectedRows=true&useSSL=false
     url: ${AUTOJOB_DB_URL}
     username: ${AUTOJOB_DB_USERNAME}
     password: ${AUTOJOB_DB_PASSWORD}
