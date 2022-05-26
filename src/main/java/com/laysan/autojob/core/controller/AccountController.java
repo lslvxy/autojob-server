@@ -9,7 +9,6 @@ import com.alibaba.cola.dto.PageResponse;
 import com.alibaba.cola.dto.Response;
 import com.alibaba.cola.dto.SingleResponse;
 import com.alibaba.cola.exception.Assert;
-import com.alibaba.fastjson.JSON;
 import com.laysan.autojob.core.constants.AccountType;
 import com.laysan.autojob.core.dto.AccountDTO;
 import com.laysan.autojob.core.entity.Account;
@@ -72,7 +71,6 @@ public class AccountController extends BaseController {
 
     @PostMapping("/account")
     public Response save(@RequestBody Account account, HttpServletRequest request) throws Exception {
-        log.info("account:{}", JSON.toJSONString(account));
         Long userId = getLoginUserId(request);
         long accountCountByType = accountService.findAccountCountByType(userId, account.getType());
         if (accountCountByType >= 3) {
