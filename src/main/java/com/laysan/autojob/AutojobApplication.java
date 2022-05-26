@@ -29,7 +29,7 @@ import java.util.List;
 public class AutojobApplication implements CommandLineRunner {
 
     public static void main(String[] args) {
-        if (args[0].equals("generateKey")) {
+        if (args.length > 0 && args[0].equals("generateKey")) {
             try {
                 KeyPair secretKey = SecureUtil.generateKeyPair("RSA");
                 PublicKey aPublic = secretKey.getPublic();

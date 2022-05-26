@@ -2,73 +2,17 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
-  # DATABASE CONFIG
   profiles:
-    active: dev
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    type: com.alibaba.druid.pool.DruidDataSource
-    druid:
-      maxActive: 20
-      initialSize: 1
-      minIdle: 3
-      maxWait: 60000
-      timeBetweenEvictionRunsMillis: 60000
-      minEvictableIdleTimeMillis: 300000
-      testWhileIdle: true
-      testOnBorrow: false
-      testOnReturn: false
-      validationQuery: SELECT 1
+    active: ${AUTOJOB_DB_TYPE}
   jpa:
     hibernate:
       ddl-auto: update
     generate-ddl: true
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-  h2:
-    console:
-      enabled: true
-      path: /h2
-      settings:
-        web-allow-others: true
-  thymeleaf:
-    mode: HTML5
-    encoding: UTF-8
-    content-type: text/html
-    cache: false
   quartz:
     job-store-type: jdbc
     jdbc:
       platform: mysql
       initialize-schema: ALWAYS
-#    properties:
-#      org:
-#        quartz:
-#          jobStore:
-#            d
-#            #持久化方式配置
-#            class: org.quartz.impl.jdbcjobstore.JobStoreTX
-#            #持久化方式配置数据驱动，MySQL数据库
-#            driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
-#            #quartz相关数据表前缀名
-#            tablePrefix: QRTZ_
-#            #开启分布式部署
-#            isClustered: false
-#            #分布式节点有效性检查时间间隔，单位：毫秒
-#            clusterCheckinInterval: 10000
-#            #配置是否使用
-#            useProperties: false
-#          threadPool:
-#            #线程池实现类
-#            class: org.quartz.simpl.SimpleThreadPool
-#            #执行最大并发线程数量
-#            threadCount: 10
-#            #线程优先级
-#            threadPriority: 5
-#            #配置是否启动自动加载数据库内的定时任务，默认true
-#            threadsInheritContextClassLoaderOfInitializingThread: true
-
-server:
-  port: 8080
 
 autojob:
   password:
@@ -83,6 +27,7 @@ ok:
     read-timeout: 60
     max-idle-connections: 200
     keep-alive-duration: 300
+
 logging:
   level:
     com:

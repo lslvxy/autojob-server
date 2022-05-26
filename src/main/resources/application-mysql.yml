@@ -1,0 +1,22 @@
+spring:
+  sql:
+    init:
+      platform: mysql
+  datasource:
+
+    #    url: jdbc:mysql://127.0.0.1:51306/autojob?characterEncoding=utf-8&allowMultiQueries=true&&useAffectedRows=true&useSSL=false
+    url: ${AUTOJOB_DB_URL}
+    username: ${AUTOJOB_DB_USERNAME}
+    password: ${AUTOJOB_DB_PASSWORD}
+  quartz:
+    jdbc:
+      platform: mysql
+server:
+  port: ${AUTOJOB_SERVER_PORT:8080}   #端口号，如果有端口冲突请修改为其他值
+
+autojob:
+  password:
+    encrypt: true #是否开启加密
+  rsa:
+    public_key: ${AUTOJOB_RSA_PUBLIC_KEY}
+    private_key: ${AUTOJOB_RSA_PRIVATE_KEY}
