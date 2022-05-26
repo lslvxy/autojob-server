@@ -1,9 +1,0 @@
-2022-05-25 21:27:28 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
-select * from users [42104-212]
-2022-05-25 21:27:33 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
-select * from users [42104-212]
-2022-05-25 21:27:41 jdbc[3]: exception
-org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "USERS" not found (this database is empty); SQL statement:
-select * from users [42104-212]
