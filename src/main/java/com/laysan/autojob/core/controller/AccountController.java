@@ -2,6 +2,8 @@ package com.laysan.autojob.core.controller;
 
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.cola.dto.MultiResponse;
 import com.alibaba.cola.dto.PageResponse;
 import com.alibaba.cola.dto.Response;
@@ -80,7 +82,19 @@ public class AccountController extends BaseController {
         if (account.getTime().length() > 5) {
             account.setTime(CharSequenceUtil.subBefore(account.getTime(), ":", true));
         }
-        QuartzUtils.createScheduleJob(scheduler, accountService.createNewAccount(account));
+        if (ObjectUtil.isNotNull(account.getId())) {
+            Account accountDb = accountService.findById(account.getId());
+            accountDb.setTime(account.getTime());
+            accountDb.setAccount(account.getAccount());
+            if (!StrUtil.equals("******", account.getPassword())) {
+                accountDb.setPassword(account.getPassword());
+            }
+            accountService.save(accountDb);
+            QuartzUtils.updateScheduleJob(scheduler, accountDb);
+        } else {
+            Account newAccount = accountService.createNewAccount(account);
+            QuartzUtils.createScheduleJob(scheduler, newAccount);
+        }
         return PageResponse.buildSuccess();
     }
 
