@@ -19,7 +19,7 @@ public class Cloud189LotteryResult extends Cloud189Result {
 
     public void setPrizeName(String prizeName) {
         if (StrUtil.isNotBlank(prizeName)) {
-            this.prizeName = prizeName.replace("天翼云盘", "");
+            this.prizeName = prizeName.replace("天翼云盘", "").replace("空间", "");
         } else {
             this.prizeName = prizeName;
         }

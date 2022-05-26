@@ -250,8 +250,8 @@ public class Cloud189RunService implements AutoRun {
         if (result.isError()) {
             throw new BizException(result.getErrorMsg());
         }
-        AutojobContextHolder.get().appendMessage("签到" + result.getNetdiskBonus() + "M");
-        LogUtils.info(log, AccountType.MODULE_CLOUD189, account.getAccount(), "签到{}M", result.getNetdiskBonus());
+        AutojobContextHolder.get().appendMessage("签到得" + result.getNetdiskBonus() + "M");
+        LogUtils.info(log, AccountType.MODULE_CLOUD189, account.getAccount(), "签到得{}M", result.getNetdiskBonus());
         IoUtil.close(response);
         return result;
 
@@ -276,7 +276,13 @@ public class Cloud189RunService implements AutoRun {
             throw new BizException("抽奖失败");
         }
         if (StrUtil.isNotBlank(jsonObject.getPrizeName())) {
-            AutojobContextHolder.get().appendMessage(jsonObject.getPrizeName());
+            String detailMessage = AutojobContextHolder.get().getDetailMessage();
+            if (detailMessage.contains(jsonObject.getPrizeName())) {
+                AutojobContextHolder.get().appendMessage(jsonObject.getPrizeName());
+            } else {
+                AutojobContextHolder.get().appendMessage("抽奖得" + jsonObject.getPrizeName());
+            }
+
             LogUtils.info(log, AccountType.MODULE_CLOUD189, AutojobContextHolder.get().getAccount(), jsonObject.getPrizeName());
         }
         IoUtil.close(response);

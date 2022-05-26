@@ -4,6 +4,8 @@ import cn.hutool.core.util.StrUtil;
 import lombok.Data;
 import okhttp3.OkHttpClient;
 
+import java.util.Arrays;
+
 @Data
 public class AutojobContext {
     private String detailMessage;
@@ -17,7 +19,8 @@ public class AutojobContext {
         if (StrUtil.isBlank(detailMessage)) {
             detailMessage = message;
         }
-        if (!StrUtil.contains(detailMessage, message)) {
+        String[] split = detailMessage.split(",");
+        if (!Arrays.asList(split).contains(message)) {
             detailMessage += ", " + message;
         }
     }
@@ -25,4 +28,5 @@ public class AutojobContext {
     public void replaceMessage(String oldMessage, String message) {
         detailMessage = StrUtil.replace(detailMessage, oldMessage, message);
     }
+
 }
