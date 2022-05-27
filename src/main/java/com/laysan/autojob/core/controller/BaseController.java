@@ -1,5 +1,7 @@
 package com.laysan.autojob.core.controller;
 
+import cn.hutool.core.util.StrUtil;
+import com.alibaba.cola.exception.BizException;
 import com.laysan.autojob.core.entity.User;
 import com.laysan.autojob.core.service.UserService;
 import com.laysan.autojob.core.utils.AESUtil;
@@ -21,6 +23,9 @@ public class BaseController {
 
     protected Long getLoginUserId(HttpServletRequest request) {
         String openId = request.getHeader("token");
+        if (StrUtil.isBlank(openId)) {
+            throw new BizException("500", "用户未登录");
+        }
         User user = userService.findByOpenId(openId);
         if (Objects.isNull(user)) {
             user = new User();
