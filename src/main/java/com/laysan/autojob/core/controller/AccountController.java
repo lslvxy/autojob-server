@@ -62,6 +62,9 @@ public class AccountController extends BaseController {
     public SingleResponse<Account> getAccountDetail(@PathVariable("id") Long id, HttpServletRequest request) {
         Long loginUserId = getLoginUserId(request);
         Account account = accountService.findById(id);
+        if (ObjectUtil.isNull(account)) {
+            Response.buildFailure("500", "账号不存在");
+        }
         if (!NumberUtil.equals(account.getUserId(), loginUserId)) {
             Response.buildFailure("500", "您无权操作");
         }

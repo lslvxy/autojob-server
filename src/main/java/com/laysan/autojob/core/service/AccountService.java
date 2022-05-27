@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AccountService {
@@ -22,7 +23,7 @@ public class AccountService {
     AESUtil aesUtil;
 
     public Account findById(Long id) {
-        return accountRepository.findById(id).get();
+        return accountRepository.findById(id).orElse(null);
     }
 
     public List<Account> findAll() {
@@ -61,8 +62,10 @@ public class AccountService {
     }
 
     public void deleteById(Long id) {
-        Account account = accountRepository.findById(id).get();
-        accountRepository.delete(account);
-        userService.updateTotalAccountCount(account.getUserId());
+        Optional<Account> account = accountRepository.findById(id);
+        account.ifPresent(v -> {
+            accountRepository.delete(v);
+            userService.updateTotalAccountCount(v.getUserId());
+        });
     }
 }
