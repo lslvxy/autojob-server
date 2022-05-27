@@ -52,7 +52,11 @@ public class TaskLogService {
         TaskLog probe = new TaskLog();
         probe.setAccountId(accountId);
         Example<TaskLog> ex = Example.of(probe);
-        return taskLogRepository.findAll(ex, pageRequest.withSort(Sort.by(Sort.Direction.DESC, "gmtCreate")));
+        Page<TaskLog> page = taskLogRepository.findAll(ex, pageRequest.withSort(Sort.by(Sort.Direction.DESC, "gmtCreate")));
+        page.getContent().forEach(v -> {
+            v.setDetail(v.getDetail().replaceAll("#", ","));
+        });
+        return page;
     }
 
     public List<TaskLog> finaAllToday(Long userId) {
