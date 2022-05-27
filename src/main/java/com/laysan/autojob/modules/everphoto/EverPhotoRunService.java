@@ -99,12 +99,12 @@ public class EverPhotoRunService implements AutoRun {
                 return null;
             }
             if (ObjectUtil.equals(httpResult.getCode(), 20104)) {
-                AutojobContextHolder.get().appendMessage("签到失败," + httpResult.getMessage());
+                AutojobContextHolder.get().appendMessage("签到失败:" + httpResult.getMessage());
                 return null;
             }
             if (ObjectUtil.notEqual(httpResult.getCode(), 0)) {
                 LogUtils.error(log, AccountType.MODULE_EVERPHOTO, account, "checkIn error,httpResult is {}", httpResult);
-                AutojobContextHolder.get().appendMessage("签到失败," + httpResult.getMessage());
+                AutojobContextHolder.get().appendMessage("签到失败:" + httpResult.getMessage());
                 return null;
             }
             EverPhotoCheckInResult checkInResult = httpResult.getData();

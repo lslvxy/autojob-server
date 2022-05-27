@@ -19,9 +19,12 @@ public class AutojobContext {
         if (StrUtil.isBlank(detailMessage)) {
             detailMessage = message;
         }
-        String[] split = detailMessage.split(",");
+        if (StrUtil.equals(detailMessage, message)) {
+            return;
+        }
+        String[] split = detailMessage.split("#");
         if (!Arrays.asList(split).contains(message)) {
-            detailMessage += ", " + message;
+            detailMessage += "#" + message;
         }
     }
 
