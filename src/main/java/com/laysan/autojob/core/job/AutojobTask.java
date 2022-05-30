@@ -22,11 +22,7 @@ public class AutojobTask extends QuartzJobBean {
     @Resource
     AccountService accountService;
     @Resource
-    TaskLogRepository taskLogRepository;
-    @Resource
     AutoRunService autoRunService;
-    @Resource
-    MessageService messageService;
 
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {

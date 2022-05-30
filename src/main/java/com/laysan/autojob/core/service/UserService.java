@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -21,9 +22,11 @@ public class UserService {
     public User findById(Long id) {
         return userRepository.findById(id).orElse(null);
     }
+
     public List<User> findAll() {
         return userRepository.findAll();
     }
+
     public User findByOpenId(String openId) {
         return userRepository.findByOpenId(openId);
     }
@@ -41,16 +44,20 @@ public class UserService {
     }
 
     public void updateTodayRunCount(Long userId) {
-        User user = userRepository.findById(userId).get();
-        user.setTodayRunCount(Math.addExact(user.getTodayRunCount(), 1));
-        userRepository.save(user);
+        Optional<User> optional = userRepository.findById(userId);
+        optional.ifPresent(user -> {
+            user.setTodayRunCount(Math.addExact(user.getTodayRunCount(), 1));
+            userRepository.save(user);
+        });
     }
 
     public void updateTotalAccountCount(Long userId) {
-        User user = userRepository.findById(userId).get();
-        List<Account> accountList = accountRepository.findByUserId(user.getId());
-        user.setTotalAccountCount(accountList.size());
-        userRepository.save(user);
+        Optional<User> optional = userRepository.findById(userId);
+        optional.ifPresent(user -> {
+            List<Account> accountList = accountRepository.findByUserId(user.getId());
+            user.setTotalAccountCount(accountList.size());
+            userRepository.save(user);
+        });
     }
 
 }

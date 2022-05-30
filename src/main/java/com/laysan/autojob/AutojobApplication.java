@@ -1,6 +1,7 @@
 package com.laysan.autojob;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.laysan.autojob.core.entity.Account;
 import com.laysan.autojob.core.service.AccountService;
@@ -19,6 +20,7 @@ import java.io.FileOutputStream;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Date;
 import java.util.List;
 
 @SpringBootApplication
@@ -60,6 +62,19 @@ public class AutojobApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+//        for (int i = 0; i < 100; i++) {
+//            Account account = new Account();
+//            account.setAccount("133" + i);
+//            account.setPassword("123");
+//            account.setTodayExecuted(-1);
+//            account.setType("everphoto");
+//            account.setUserId(1L);
+//            Date now = new Date();
+//            Date date = DateUtil.offsetMinute(now, i).toJdkDate();
+//            String format = DateUtil.format(date, "HH:mm");
+//            account.setTime(format);
+//            accountService.createNewAccount(account);
+//        }
         List<Account> accountList = accountService.findAll();
         accountList.forEach(account -> {
             try {
@@ -68,6 +83,7 @@ public class AutojobApplication implements CommandLineRunner {
                 QuartzUtils.updateScheduleJob(scheduler, account);
             }
         });
+
 
     }
 }
