@@ -14,6 +14,16 @@ spring:
       platform: ${AUTOJOB_DB_TYPE}
       initialize-schema: ALWAYS
 
+  boot:
+    admin:
+      client:
+        url: http://localhost:8099
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
 autojob:
   password:
     encrypt: true #是否开启加密
@@ -32,4 +42,5 @@ logging:
   level:
     com:
       laysan:
-        autojob: info
+        autojob: debug
+    okhttp3: debug

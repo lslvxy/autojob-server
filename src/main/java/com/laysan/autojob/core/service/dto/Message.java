@@ -1,4 +1,3 @@
-
 package com.laysan.autojob.core.service.dto;
 
 import lombok.Data;

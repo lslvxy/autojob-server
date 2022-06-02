@@ -1,7 +1,6 @@
 package com.laysan.autojob;
 
 import cn.hutool.core.codec.Base64;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.crypto.SecureUtil;
 import com.laysan.autojob.core.entity.Account;
 import com.laysan.autojob.core.service.AccountService;
@@ -17,10 +16,10 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 import javax.annotation.Resource;
 import java.io.FileOutputStream;
+import java.nio.charset.Charset;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.Date;
 import java.util.List;
 
 @SpringBootApplication
@@ -39,13 +38,13 @@ public class AutojobApplication implements CommandLineRunner {
                 byte[] aPublicEncoded = aPublic.getEncoded();
                 String publicKeyStr = Base64.encodeStr(aPublicEncoded, false, false);
                 try (FileOutputStream fos = new FileOutputStream("./publicKey.txt")) {
-                    fos.write(publicKeyStr.getBytes());
+                    fos.write(publicKeyStr.getBytes(Charset.defaultCharset()));
                     fos.flush();
                 }
                 byte[] aPrivateEncoded = aPrivate.getEncoded();
                 String privateKeyStr = Base64.encodeStr(aPrivateEncoded, false, false);
                 try (FileOutputStream fos2 = new FileOutputStream("./privateKey.txt")) {
-                    fos2.write(privateKeyStr.getBytes());
+                    fos2.write(privateKeyStr.getBytes(Charset.defaultCharset()));
                     fos2.flush();
                 }
             } catch (Exception ignored) {

@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class AccountDTO {
-    private String        type;
-    private String        userId;
+    private String type;
+    private String userId;
     private List<Account> accountList;
 }

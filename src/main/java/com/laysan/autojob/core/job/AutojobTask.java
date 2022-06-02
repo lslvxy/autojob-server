@@ -2,10 +2,8 @@ package com.laysan.autojob.core.job;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.laysan.autojob.core.entity.Account;
-import com.laysan.autojob.core.repository.TaskLogRepository;
 import com.laysan.autojob.core.service.AccountService;
 import com.laysan.autojob.core.service.AutoRunService;
-import com.laysan.autojob.core.service.MessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;

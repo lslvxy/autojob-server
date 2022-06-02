@@ -6,11 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.laysan.autojob.core.entity.TaskLog;
 import com.laysan.autojob.core.entity.User;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
+import okhttp3.*;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
