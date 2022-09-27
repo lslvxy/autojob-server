@@ -44,3 +44,19 @@ logging:
       laysan:
         autojob: debug
     okhttp3: debug
+
+
+
+
+xxl:
+  job:
+    admin:
+      addresses: http://47.100.3.180:18888/xxl-job-admin
+    accessToken: default_token
+    executor:
+      appname: xxl-job-executor-sample
+      address:
+      ip:
+      port: 9999
+      logpath: ./logs/xxl-job
+      logretentiondays: 10
