@@ -15,7 +15,14 @@ import com.laysan.autojob.core.service.AutoRun;
 import com.laysan.autojob.core.utils.LogUtils;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
+import okhttp3.Cookie;
+import okhttp3.CookieJar;
+import okhttp3.FormBody;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.apache.commons.codec.binary.Base64;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -32,7 +39,12 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -44,18 +56,20 @@ import java.util.zip.GZIPInputStream;
 @Service
 @Slf4j
 public class Cloud189RunService implements AutoRun {
-    private static String loginPageUrl = "https://cloud.189.cn/api/portal/loginUrl.action?redirectURL=https://cloud.189.cn/web/redirect.html";
-    private static Pattern returnUrlPattern = Pattern.compile("returnUrl = '(.*)'");
-    private static Pattern paramIdPattern = Pattern.compile("paramId = \"(.*)\"");
-    private static Pattern ltPattern = Pattern.compile("lt = \"(.*)\"");
-    private static Pattern reqIdPattern = Pattern.compile("reqId = \"(.*)\"");
-    private static Pattern guidPattern = Pattern.compile("guid = \"(.*)\"");
-    private String unifyAccountLoginUrl = "";
+    private static String  loginPageUrl
+                                                = "https://cloud.189.cn/api/portal/loginUrl.action?redirectURL=https://cloud.189"
+            + ".cn/web/redirect.html";
+    private static Pattern returnUrlPattern     = Pattern.compile("returnUrl = '(.*)'");
+    private static Pattern paramIdPattern       = Pattern.compile("paramId = \"(.*)\"");
+    private static Pattern ltPattern            = Pattern.compile("lt = \"(.*)\"");
+    private static Pattern reqIdPattern         = Pattern.compile("reqId = \"(.*)\"");
+    private static Pattern guidPattern          = Pattern.compile("guid = \"(.*)\"");
+    private        String  unifyAccountLoginUrl = "";
 
     private static String loginUrl = "https://open.e.189.cn/api/logbox/oauth2/loginSubmit.do";
 
     String url2 = "https://m.cloud.189.cn/v2/drawPrizeMarketDetails.action?taskId=TASK_SIGNIN_PHOTOS&activityId=ACT_SIGNIN";
-    String url = "https://m.cloud.189.cn/v2/drawPrizeMarketDetails.action?taskId=TASK_SIGNIN&activityId=ACT_SIGNIN";
+    String url  = "https://m.cloud.189.cn/v2/drawPrizeMarketDetails.action?taskId=TASK_SIGNIN&activityId=ACT_SIGNIN";
     @Autowired
     private ServiceTemplateService serviceTemplateService;
 
@@ -64,7 +78,6 @@ public class Cloud189RunService implements AutoRun {
     public void registry() {
         HANDLERS.put(AccountType.MODULE_CLOUD189.getCode(), this);
     }
-
 
     public boolean run(Account account, boolean forceRun) {
 
@@ -117,7 +130,8 @@ public class Cloud189RunService implements AutoRun {
 
             @Override
             public void process() {
-                if (AutojobContextHolder.get().getCheckInSuccess().equals(Boolean.FALSE)) {
+                if (AutojobContextHolder.get().getCheckInSuccess() == null || AutojobContextHolder.get().getCheckInSuccess().equals(
+                        Boolean.FALSE)) {
                     checkIn(account);
                 }
                 lottery(url);
@@ -129,12 +143,14 @@ public class Cloud189RunService implements AutoRun {
         return true;
     }
 
-
     @SneakyThrows
     private boolean needCaptcha(String username) {
         String needCaptchaUrl = "https://open.e.189.cn/api/logbox/oauth2/needcaptcha.do";
-        RequestBody body = new FormBody.Builder().add("appKey", "cloud").add("accountType", "01").add("userName", "{RSA}" + username + "").build();
-        Request request = new Request.Builder().url(needCaptchaUrl).post(body).header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/76.0").header("Referer", "https://open.e.189.cn/").build();
+        RequestBody body = new FormBody.Builder().add("appKey", "cloud").add("accountType", "01").add("userName", "{RSA}" + username + "")
+                .build();
+        Request request = new Request.Builder().url(needCaptchaUrl).post(body).header("User-Agent",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/76.0").header("Referer",
+                "https://open.e.189.cn/").build();
         Response needCaptchaResponse = AutojobContextHolder.get().getClient().newCall(request).execute();
         String responseText = Objects.requireNonNull(needCaptchaResponse.body()).string();
         LogUtils.info(log, AccountType.MODULE_CLOUD189, AutojobContextHolder.get().getAccount(), "needCaptcha:" + responseText);
@@ -204,8 +220,13 @@ public class Cloud189RunService implements AutoRun {
         if (needCaptcha) {
             throw new BizException("登录需要验证");
         }
-        RequestBody body = new FormBody.Builder().add("appKey", "cloud").add("accountType", "01").add("userName", "{RSA}" + encryptUsername + "").add("password", "{RSA}" + encryptPassword + "").add("validateCode", "").add("captchaToken", prepareMap.get("captchaToken")).add("returnUrl", prepareMap.get("returnUrl")).add("mailSuffix", "@189.cn").add("paramId", prepareMap.get("paramId")).build();
-        Request request = new Request.Builder().url(loginUrl).post(body).header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/76.0").header("Referer", "https://open.e.189.cn/").header("lt", prepareMap.get("lt")).build();
+        RequestBody body = new FormBody.Builder().add("appKey", "cloud").add("accountType", "01").add("userName",
+                "{RSA}" + encryptUsername + "").add("password", "{RSA}" + encryptPassword + "").add("validateCode", "").add("captchaToken",
+                prepareMap.get("captchaToken")).add("returnUrl", prepareMap.get("returnUrl")).add("mailSuffix", "@189.cn").add("paramId",
+                prepareMap.get("paramId")).build();
+        Request request = new Request.Builder().url(loginUrl).post(body).header("User-Agent",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/76.0").header("Referer",
+                "https://open.e.189.cn/").header("lt", prepareMap.get("lt")).build();
         Response response = AutojobContextHolder.get().getClient().newCall(request).execute();
 
         String responseText = Objects.requireNonNull(response.body()).string();
@@ -226,9 +247,15 @@ public class Cloud189RunService implements AutoRun {
 
     @SneakyThrows
     private Cloud189CheckInResult checkIn(Account account) {
-        String checkInUrl = "https://api.cloud.189.cn/mkt/userSign.action?rand=" + System.currentTimeMillis() + "&clientType=TELEANDROID&version=8.6.3&model=SM-G930K";
+        String checkInUrl = "https://api.cloud.189.cn/mkt/userSign.action?rand=" + System.currentTimeMillis()
+                + "&clientType=TELEANDROID&version=8.6.3&model=SM-G930K";
 
-        Request request = new Request.Builder().url(checkInUrl).header("User-Agent", "Mozilla/5.0 (Linux; Android 5.1.1; SM-G930K Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) " + "Version/4.0" + " Chrome/74.0.3729.136 Mobile Safari/537.36 Ecloud/8.6.3 Android/22 clientId/355325117317828 " + "clientModel/SM-G930K imsi/460071114317824 clientChannelId/qq proVersion/1.0.6").header("Referer", "https://m.cloud.189.cn/zhuanti/2016/sign/index.jsp?albumBackupOpened=1").header("Host", "m.cloud.189.cn").header("Accept-Encoding", "gzip, deflate").build();
+        Request request = new Request.Builder().url(checkInUrl).header("User-Agent",
+                "Mozilla/5.0 (Linux; Android 5.1.1; SM-G930K Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) " + "Version/4.0"
+                        + " Chrome/74.0.3729.136 Mobile Safari/537.36 Ecloud/8.6.3 Android/22 clientId/355325117317828 "
+                        + "clientModel/SM-G930K imsi/460071114317824 clientChannelId/qq proVersion/1.0.6").header("Referer",
+                "https://m.cloud.189.cn/zhuanti/2016/sign/index.jsp?albumBackupOpened=1").header("Host", "m.cloud.189.cn").header(
+                "Accept-Encoding", "gzip, deflate").build();
         Response response = AutojobContextHolder.get().getClient().newCall(request).execute();
         String signInResult = uncompress(response.body().bytes());
         if (log.isDebugEnabled()) {
@@ -248,7 +275,12 @@ public class Cloud189RunService implements AutoRun {
     @SneakyThrows
     private Cloud189LotteryResult lottery(String url) {
 
-        Request request = new Request.Builder().url(url).header("User-Agent", "Mozilla/5.0 (Linux; Android 5.1.1; SM-G930K Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) " + "Version/4.0" + " Chrome/74.0.3729.136 Mobile Safari/537.36 Ecloud/8.6.3 Android/22 clientId/355325117317828 " + "clientModel/SM-G930K imsi/460071114317824 clientChannelId/qq proVersion/1.0.6").header("Referer", "https://m.cloud.189.cn/zhuanti/2016/sign/index.jsp?albumBackupOpened=1").header("Host", "m.cloud.189.cn").header("Accept-Encoding", "gzip, deflate").build();
+        Request request = new Request.Builder().url(url).header("User-Agent",
+                "Mozilla/5.0 (Linux; Android 5.1.1; SM-G930K Build/NRD90M; wv) AppleWebKit/537.36 (KHTML, like Gecko) " + "Version/4.0"
+                        + " Chrome/74.0.3729.136 Mobile Safari/537.36 Ecloud/8.6.3 Android/22 clientId/355325117317828 "
+                        + "clientModel/SM-G930K imsi/460071114317824 clientChannelId/qq proVersion/1.0.6").header("Referer",
+                "https://m.cloud.189.cn/zhuanti/2016/sign/index.jsp?albumBackupOpened=1").header("Host", "m.cloud.189.cn").header(
+                "Accept-Encoding", "gzip, deflate").build();
 
         Response response = AutojobContextHolder.get().getClient().newCall(request).execute();
         String responseText = uncompress(response.body().bytes());
@@ -292,7 +324,7 @@ public class Cloud189RunService implements AutoRun {
     }
 
     private Cookie parseCookie(String cookieString, HttpUrl httpUrl) {
-//        pageOp=633aa85b525636d07b2dd4ab6ca82088; domain=e.189.cn; path=/
+        //        pageOp=633aa85b525636d07b2dd4ab6ca82088; domain=e.189.cn; path=/
         Cookie.Builder builder = new Cookie.Builder();
         String[] kvs = cookieString.split(";");
         for (String kv : kvs) {
