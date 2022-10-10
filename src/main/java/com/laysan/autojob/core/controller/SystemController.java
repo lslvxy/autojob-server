@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,11 +22,12 @@ import java.util.Map;
 @Slf4j
 public class SystemController {
 
+    @Value("${autojob.wx.secret}")
+    private String wxSecret = "";
 
-    @GetMapping("/user/getopenid")
+    @GetMapping("/user/openId")
     public String getOpenId(String code) {
-        String secret = System.getenv("wx127525214d4abbe0_secret");
-        String url = "https://api.weixin.qq.com/sns/jscode2session?appid=wx127525214d4abbe0&secret=" + secret + "&js_code=" + code
+        String url = "https://api.weixin.qq.com/sns/jscode2session?appid=wx127525214d4abbe0&secret=" + wxSecret + "&js_code=" + code
                 + "&grant_type=authorization_code";
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
@@ -58,8 +60,11 @@ public class SystemController {
         TypeDTO yun139 = new TypeDTO();
         //yun139.setType(AccountType.MODULE_YOUDAO.getCode());
         yun139.setName("有道云");
-        yun139.setIcon("https://th.bing.com/th/id/R42ec07afd649805d38ffb2ee84e826c8?rik=FjxbOtyizIGk5Q&riu=http%3a%2f%2fis5.mzstatic.com%2fimage%2fthumb%2fPurple118%2fv4%2f97%2f83%2f7c%2f97837c6f-284f-7435-241c-6dafb8132157%2fsource%2f512x512bb.png&ehk=3OE2Kpd1dBGgqjk1BitkrOMni2HqdlE6kglsDGoEw78%3d&risl=&pid=ImgRaw");
-//        yun139.setStatus("开发中");
+        yun139.setIcon(
+                "https://th.bing.com/th/id/R42ec07afd649805d38ffb2ee84e826c8?rik=FjxbOtyizIGk5Q&riu=http%3a%2f%2fis5.mzstatic"
+                        + ".com%2fimage%2fthumb%2fPurple118%2fv4%2f97%2f83%2f7c%2f97837c6f-284f-7435-241c-6dafb8132157%2fsource"
+                        + "%2f512x512bb.png&ehk=3OE2Kpd1dBGgqjk1BitkrOMni2HqdlE6kglsDGoEw78%3d&risl=&pid=ImgRaw");
+        //        yun139.setStatus("开发中");
         result.add(yun139);
 
         TypeDTO wps = new TypeDTO();

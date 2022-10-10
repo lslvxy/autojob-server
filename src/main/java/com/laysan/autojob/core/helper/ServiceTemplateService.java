@@ -23,7 +23,7 @@ public class ServiceTemplateService {
     @Autowired
     private AccountService accountService;
     @Autowired
-    private UserService userService;
+    private UserService    userService;
 
     public void saveTaskLog(TaskLog taskLog) {
         taskLogService.save(taskLog);
