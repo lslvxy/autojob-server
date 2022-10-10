@@ -55,34 +55,34 @@ public class AutojobApplication implements CommandLineRunner {
     }
 
     @Resource
-    private Scheduler scheduler;
+    private Scheduler      scheduler;
     @Resource
     private AccountService accountService;
 
     @Override
     public void run(String... args) {
-//        for (int i = 0; i < 100; i++) {
-//            Account account = new Account();
-//            account.setAccount("133" + i);
-//            account.setPassword("123");
-//            account.setTodayExecuted(-1);
-//            account.setType("everphoto");
-//            account.setUserId(1L);
-//            Date now = new Date();
-//            Date date = DateUtil.offsetMinute(now, i).toJdkDate();
-//            String format = DateUtil.format(date, "HH:mm");
-//            account.setTime(format);
-//            accountService.createNewAccount(account);
-//        }
+        //        for (int i = 0; i < 100; i++) {
+        //            Account account = new Account();
+        //            account.setAccount("133" + i);
+        //            account.setPassword("123");
+        //            account.setTodayExecuted(-1);
+        //            account.setType("everphoto");
+        //            account.setUserId(1L);
+        //            Date now = new Date();
+        //            Date date = DateUtil.offsetMinute(now, i).toJdkDate();
+        //            String format = DateUtil.format(date, "HH:mm");
+        //            account.setTime(format);
+        //            accountService.createNewAccount(account);
+        //        }
         List<Account> accountList = accountService.findAll();
         accountList.forEach(account -> {
             try {
                 QuartzUtils.createScheduleJob(scheduler, account);
+                QuartzUtils.runOnce(scheduler, account, true);
             } catch (Exception e) {
                 QuartzUtils.updateScheduleJob(scheduler, account);
             }
         });
-
 
     }
 }
