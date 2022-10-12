@@ -1,6 +1,6 @@
 FROM openjdk:8-jdk-alpine
 VOLUME /tmp
-ADD ./target/${project.build.finalName}.jar app.jar
+ADD ./release/autojob.jar app.jar
 
 ENV AUTOJOB_DB_TYPE=${AUTOJOB_DB_TYPE} \
     AUTOJOB_DB_URL=${AUTOJOB_DB_URL} \
