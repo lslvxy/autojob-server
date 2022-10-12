@@ -53,5 +53,5 @@ logging:
     com:
       laysan:
         autojob: debug
-    okhttp3: debug
+    okhttp3: info
 

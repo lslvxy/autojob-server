@@ -78,7 +78,7 @@ public class AutojobApplication implements CommandLineRunner {
         accountList.forEach(account -> {
             try {
                 QuartzUtils.createScheduleJob(scheduler, account);
-                QuartzUtils.runOnce(scheduler, account, true);
+                //QuartzUtils.runOnce(scheduler, account, true);
             } catch (Exception e) {
                 QuartzUtils.updateScheduleJob(scheduler, account);
             }
