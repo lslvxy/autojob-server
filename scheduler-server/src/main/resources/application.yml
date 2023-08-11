@@ -1,0 +1,57 @@
+spring:
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  profiles:
+    active: ${AUTOJOB_DB_TYPE}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    generate-ddl: true
+#  quartz:
+#    job-store-type: jdbc
+#    jdbc:
+#      platform: ${AUTOJOB_DB_TYPE}
+#      initialize-schema: ALWAYS
+#    properties:
+#      org:
+#        quartz:
+#          jobStore:
+#            lockHandler:
+#              class: org.quartz.impl.jdbcjobstore.StdRowLockSemaphore
+#              maxRetry: 7
+#              retryPeriod: 3000
+
+
+  boot:
+    admin:
+      client:
+        url: http://localhost:8099
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+autojob:
+  password:
+    encrypt: true #是否开启加密
+  rsa:
+    public_key: ${AUTOJOB_RSA_PUBLIC_KEY}
+    private_key: ${AUTOJOB_RSA_PRIVATE_KEY}
+  wx:
+    secret: ${AUTOJOB_WX_SECRET}
+ok:
+  http:
+    connect-timeout: 60
+    read-timeout: 60
+    max-idle-connections: 200
+    keep-alive-duration: 300
+
+logging:
+  level:
+    com:
+      laysan:
+        autojob: debug
+    okhttp3: info
+

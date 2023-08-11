@@ -1,0 +1,19 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    generate-ddl: true
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  datasource:
+    url: ${AUTOJOB_DB_URL}
+    username: ${AUTOJOB_DB_USERNAME}
+    password: ${AUTOJOB_DB_PASSWORD}
+
+autojob:
+  password:
+    encrypt: ${AUTOJOB_PASSWORD_ENCRYPT}
+  rsa:
+    public_key: ${AUTOJOB_RSA_PUBLIC_KEY}
+    private_key: ${AUTOJOB_RSA_PRIVATE_KEY}
