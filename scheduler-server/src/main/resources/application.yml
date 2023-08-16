@@ -8,19 +8,6 @@ spring:
     hibernate:
       ddl-auto: update
     generate-ddl: true
-#  quartz:
-#    job-store-type: jdbc
-#    jdbc:
-#      platform: ${AUTOJOB_DB_TYPE}
-#      initialize-schema: ALWAYS
-#    properties:
-#      org:
-#        quartz:
-#          jobStore:
-#            lockHandler:
-#              class: org.quartz.impl.jdbcjobstore.StdRowLockSemaphore
-#              maxRetry: 7
-#              retryPeriod: 3000
 
 
   boot:
@@ -35,7 +22,7 @@ management:
         include: '*'
 autojob:
   password:
-    encrypt: true #是否开启加密
+    encrypt: true
   rsa:
     public_key: ${AUTOJOB_RSA_PUBLIC_KEY}
     private_key: ${AUTOJOB_RSA_PRIVATE_KEY}

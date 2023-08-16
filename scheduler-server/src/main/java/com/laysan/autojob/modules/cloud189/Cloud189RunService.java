@@ -15,6 +15,7 @@ import com.laysan.autojob.service.AbstractJobRuner;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
@@ -37,6 +38,7 @@ import org.apache.hc.client5.http.classic.methods.HttpGet;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.cookie.BasicCookieStore;
 import org.apache.hc.client5.http.cookie.CookieStore;
+import org.apache.hc.client5.http.entity.GzipDecompressingEntity;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
@@ -78,7 +80,6 @@ public class Cloud189RunService extends AbstractJobRuner {
     String url2 = "https://m.cloud.189.cn/v2/drawPrizeMarketDetails.action?taskId=TASK_SIGNIN_PHOTOS&activityId=ACT_SIGNIN";
     String url3 = "https://m.cloud.189.cn/v2/drawPrizeMarketDetails.action?taskId=TASK_2022_FLDFS_KJ&activityId=ACT_SIGNIN";
     private String unifyAccountLoginUrl = "";
-    CookieStore cookieStore = new BasicCookieStore();
 
     public static String uncompress(byte[] str) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -89,6 +90,19 @@ public class Cloud189RunService extends AbstractJobRuner {
             }
         } catch (Exception e) {
             return new String(str);
+        }
+        return new String(baos.toByteArray(), StandardCharsets.UTF_8);
+    }
+
+    public static String uncompress(InputStream inputStream) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (GZIPInputStream gis = new GZIPInputStream(inputStream)) {
+            int b;
+            while ((b = gis.read()) != -1) {
+                baos.write((byte) b);
+            }
+        } catch (Exception e) {
+            return null;
         }
         return new String(baos.toByteArray(), StandardCharsets.UTF_8);
     }
@@ -153,6 +167,7 @@ public class Cloud189RunService extends AbstractJobRuner {
 
     public void doRun(AutojobContext context) {
         Account account = context.getAccount();
+        CookieStore cookieStore = new BasicCookieStore();
 
         ServiceTemplate.execute(context, new ServiceCallback() {
             @Override
@@ -344,8 +359,8 @@ public class Cloud189RunService extends AbstractJobRuner {
         Cloud189LotteryResult result = null;
         try (CloseableHttpResponse httpResponse = context.getHttpClient().execute(httpGet)) {
             HttpEntity entity = httpResponse.getEntity();
-            byte[] byteArray = EntityUtils.toByteArray(entity);
-            String responseText = uncompress(byteArray);
+            //GzipDecompressingEntity gzip = new GzipDecompressingEntity(entity);
+            String responseText = EntityUtils.toString(entity);
             LogUtils.info(log, AccountType.MODULE_CLOUD189, context.getAccount(), "lotteryResult:" + responseText);
             result = JSON.parseObject(responseText, Cloud189LotteryResult.class);
             if (result.userNotChance()) {

@@ -16,7 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest(classes = AutoJobRunApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("local")
+//@ActiveProfiles("mysql")
 class SyncTests {
 
     @Autowired
@@ -32,8 +32,8 @@ class SyncTests {
     void comm() throws Exception {
         //messageService.sendMessage("111111", "xxx", "ooo");
         Account account = new Account();
-        String encrypt = aesUtil.encrypt("aaa");
-        account.setAccount("bbb");
+        String encrypt = aesUtil.encrypt("1122");
+        account.setAccount("22");
         account.setPassword(encrypt);
         account.setTime("00:00");
         account.setType(AccountType.MODULE_CLOUD189.getCode());
